@@ -78,7 +78,7 @@ const ConnectionOnboardingAnimation = () => {
   );
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-8 bg-white">
+    <div className="w-[41%]   mx-auto p-8 bg-white">
       <div className="relative">
         {/* Sources Section */}
         <div className="absolute left-0 top-0">
@@ -429,25 +429,25 @@ const ConnectionOnboardingAnimation = () => {
                 rx="48"
                 fill="#1e40af"
               />
-              <text
+              {/* <text
                 x="246"
                 y="140"
                 textAnchor="middle"
-                className="fill-white text-xl font-bold"
+                className="fill-white text-md font-bold"
               >
                 DATA
-              </text>
+              </text> */}
               <text
                 x="246"
                 y="165"
                 textAnchor="middle"
-                className="fill-white text-xl font-bold"
+                className="fill-white text-md font-bold"
               >
-                TRAM
+                DATATRAM
               </text>
-              <circle cx="230" cy="180" r="8" fill="#3b82f6" />
+              {/* <circle cx="230" cy="180" r="8" fill="#3b82f6" />
               <circle cx="246" cy="185" r="6" fill="#60a5fa" />
-              <circle cx="262" cy="180" r="8" fill="#3b82f6" />
+              <circle cx="262" cy="180" r="8" fill="#3b82f6" /> */}
             </g>
 
             {/* Animated circles - show based on hover state or default */}
@@ -605,12 +605,12 @@ const ConnectionOnboardingAnimation = () => {
         {/* Destinations Section */}
         <div className="absolute right-0 top-0">
           <div className="mb-6">
-            <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2 -mb-8 invisible">
               Destinations
               <QuestionIcon />
             </h3>
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-6">
             {destinations.map((destination, index) => (
               <div
                 key={destination.id}
@@ -647,6 +647,10 @@ const ConnectionOnboardingAnimation = () => {
             >
               <PlusIcon />
             </div>
+            <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2 -mb-8 ">
+              Destinations
+              <QuestionIcon />
+            </h3>
           </div>
         </div>
       </div>

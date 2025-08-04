@@ -83,10 +83,14 @@ export default function RootLayout({
               /> */}
 
                 {/* <SignUp /> */}
-                <SignInButton />
+                <SignInButton>
+                  <button className="px-6 py-2 bg-white text-purple-600 rounded-lg font-bold transform hover:-translate-y-1 transition duration-400 border border-purple-600">
+                    Sign in
+                  </button>
+                </SignInButton>
                 <SignUpButton>
-                  <button className="bg-[#6c47ff] text-ceramic-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer">
-                    Sign Up
+                  <button className="px-6 py-2 bg-purple-600 text-white rounded-lg font-bold transform hover:-translate-y-1 transition duration-400">
+                    Sign up
                   </button>
                 </SignUpButton>
               </SignedOut>
