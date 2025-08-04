@@ -1,7 +1,10 @@
 'use client';
-{
-  /* Destination hover animations */
-}
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
 import React, { useState } from 'react';
 
 const ConnectionOnboardingAnimation = () => {
@@ -86,7 +89,18 @@ const ConnectionOnboardingAnimation = () => {
           <div className="flex flex-col gap-8">
             <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2">
               Sources
-              <QuestionIcon />
+              <Tooltip>
+                <TooltipTrigger className="!text-black">
+                  {' '}
+                  <QuestionIcon />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>
+                    A source is where Airbyte pulls data from. Airbyte supports
+                    many sources across APIs, databases, and files.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
             </h3>
             {sources.map((source, index) => (
               <div
@@ -649,7 +663,18 @@ const ConnectionOnboardingAnimation = () => {
             </div>
             <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2 -mb-8 ">
               Destinations
-              <QuestionIcon />
+              <Tooltip>
+                <TooltipTrigger className="!text-black">
+                  {' '}
+                  <QuestionIcon />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>
+                    A destination is where DataTram sends data. These are
+                    typically data warehouses or databases.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
             </h3>
           </div>
         </div>
