@@ -10,6 +10,7 @@ import {
 import { motion } from 'motion/react';
 import { cn } from '../../../../lib/utils';
 import { Sidebar } from '@/components/ui/sidebar';
+import { SignOutButton } from '@clerk/nextjs';
 export function SidebarComponent() {
   const links = [
     {
@@ -37,7 +38,9 @@ export function SidebarComponent() {
       label: 'Logout',
       href: '#',
       icon: (
-        <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <SignOutButton>
+          <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        </SignOutButton>
       ),
     },
   ];

@@ -1,29 +1,7 @@
 'use client';
 
-// import {
-//   Sidebar,
-//   SidebarContent,
-//   SidebarFooter,
-//   SidebarGroup,
-//   SidebarHeader,
-// } from '@/components/ui/sidebar';
-
-// export function AppSidebar() {
-//   return (
-//     <Sidebar>
-//       <SidebarHeader />
-//       <SidebarContent>
-//         <SidebarGroup />
-//         <SidebarGroup />
-//       </SidebarContent>
-//       <SidebarFooter />
-//     </Sidebar>
-//   );
-// }
-
 import { useState } from 'react';
 import {
-  Home,
   Settings,
   Users,
   FileText,
@@ -37,6 +15,7 @@ import {
   ChevronRight,
   CableIcon,
 } from 'lucide-react';
+import { SignOutButton } from '@clerk/nextjs';
 
 export function AppSidebar() {
   const [activeItem, setActiveItem] = useState('Dashboard');
@@ -181,7 +160,9 @@ export function AppSidebar() {
               john.doe@example.com
             </p>
           </div>
-          <LogOut className="w-4 h-4 text-purple-500" />
+          <SignOutButton>
+            <LogOut className="w-4 h-4 text-purple-500" />
+          </SignOutButton>
         </div>
       </div>
     </div>
