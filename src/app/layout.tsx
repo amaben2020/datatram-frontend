@@ -39,7 +39,12 @@ export default function RootLayout({
   const pathname = usePathname();
   console.log(pathname);
 
-  const hideNav = ['/dashboard'].includes(pathname);
+  const hideNav = [
+    '/dashboard',
+    '/dashboard/sources',
+    '/dashboard/new-connection',
+    '/dashboard/destinations',
+  ].includes(pathname);
 
   console.log(hideNav);
   return (

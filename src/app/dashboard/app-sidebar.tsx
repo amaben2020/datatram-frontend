@@ -14,26 +14,32 @@ import {
   LogOut,
   ChevronRight,
   CableIcon,
+  PlaneLanding,
+  Database,
+  MonitorCog,
 } from 'lucide-react';
-import { SignOutButton } from '@clerk/nextjs';
+import { SignOutButton, useUser } from '@clerk/nextjs';
+import Link from 'next/link';
 
 export function AppSidebar() {
   const [activeItem, setActiveItem] = useState('Dashboard');
 
+  const { user } = useUser();
+
   const navigationItems = [
-    { name: 'Connections', icon: CableIcon, href: '#' },
-    { name: 'Analytics', icon: BarChart3, href: '#' },
-    { name: 'Projects', icon: FileText, href: '#' },
-    { name: 'Team', icon: Users, href: '#' },
-    { name: 'Calendar', icon: Calendar, href: '#' },
-    { name: 'Messages', icon: Mail, href: '#' },
+    { name: 'Connections', icon: CableIcon, href: '/dashboard' },
+    { name: 'Sources', icon: Database, href: '/dashboard/sources' },
+    { name: 'Destinations', icon: MonitorCog, href: '/dashboard/destinations' },
+    // { name: 'Team', icon: Users, href: '#' },
+    // { name: 'Calendar', icon: Calendar, href: '#' },
+    // { name: 'Messages', icon: Mail, href: '#' },
   ];
 
-  const settingsItems = [
-    { name: 'Settings', icon: Settings, href: '#' },
-    { name: 'Notifications', icon: Bell, href: '#' },
-    { name: 'Profile', icon: User, href: '#' },
-  ];
+  // const settingsItems = [
+  //   { name: 'Settings', icon: Settings, href: '#' },
+  //   { name: 'Notifications', icon: Bell, href: '#' },
+  //   { name: 'Profile', icon: User, href: '#' },
+  // ];
 
   return (
     <div className="h-screen w-64 bg-white border-r border-purple-100 shadow-sm flex flex-col">
@@ -48,32 +54,24 @@ export function AppSidebar() {
             <p className="text-sm text-purple-600">Workspace</p>
           </div>
         </div>
-
-        <div className="mt-4 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-4 h-4" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-full pl-10 pr-4 py-2 bg-purple-50 border border-purple-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-purple-400"
-          />
-        </div>
       </div>
 
       {/* Content */}
       <div className="flex-1 px-4 py-4 overflow-y-auto">
         {/* Navigation Group */}
         <div className="mb-6">
-          <div className="mb-3">
+          {/* <div className="mb-3">
             <h3 className="text-xs font-semibold text-purple-600 uppercase tracking-wider">
               Navigation
             </h3>
-          </div>
+          </div> */}
           <nav className="space-y-1">
             {navigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeItem === item.name;
               return (
-                <button
+                <Link
+                  href={item.href}
                   key={item.name}
                   onClick={() => setActiveItem(item.name)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
@@ -97,14 +95,14 @@ export function AppSidebar() {
                         : 'opacity-0 group-hover:opacity-100 text-purple-400'
                     }`}
                   />
-                </button>
+                </Link>
               );
             })}
           </nav>
         </div>
 
         {/* Settings Group */}
-        <div>
+        {/* <div>
           <div className="mb-3">
             <h3 className="text-xs font-semibold text-purple-600 uppercase tracking-wider">
               Account
@@ -143,21 +141,23 @@ export function AppSidebar() {
               );
             })}
           </nav>
-        </div>
+        </div> */}
       </div>
 
       {/* Footer */}
       <div className="p-4 border-t border-purple-50">
         <div className="flex items-center space-x-3 p-3 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors cursor-pointer">
           <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
-            <span className="text-white text-sm font-medium">JD</span>
+            <span className="text-white text-sm font-medium">
+              {user?.firstName?.split('')[0]}
+            </span>
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 truncate">
-              John Doe
+              {user?.fullName}
             </p>
             <p className="text-xs text-purple-600 truncate">
-              john.doe@example.com
+              {user?.emailAddresses[0].emailAddress}
             </p>
           </div>
           <SignOutButton>

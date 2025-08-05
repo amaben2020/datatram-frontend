@@ -4,6 +4,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import Link from 'next/link';
 
 import React, { useState } from 'react';
 
@@ -81,7 +82,13 @@ const ConnectionOnboardingAnimation = () => {
   );
 
   return (
-    <div className="w-[41%]   mx-auto p-8 bg-white">
+    <div className="w-[60%]   mx-auto p-8 bg-white">
+      <h2 className="mb-10 text-center text-2xl font-bold text-blue-900">
+        <strong className="text-purple-600 font-bold text-3xl italic">
+          Connections
+        </strong>{' '}
+        link Sources to Destinations
+      </h2>
       <div className="relative">
         {/* Sources Section */}
         <div className="absolute left-0 top-0">
@@ -96,8 +103,8 @@ const ConnectionOnboardingAnimation = () => {
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>
-                    A source is where Airbyte pulls data from. Airbyte supports
-                    many sources across APIs, databases, and files.
+                    A source is where Datatram pulls data from. Datatram
+                    supports many sources across APIs, databases, and files.
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -129,7 +136,8 @@ const ConnectionOnboardingAnimation = () => {
                 </div>
               </div>
             ))}
-            <div
+            <Link
+              href="/dashboard/sources"
               className="flex items-center justify-center w-12 h-12 bg-white rounded-lg shadow-lg hover:shadow-purple-400/50 transition-all duration-300 cursor-pointer border border-gray-200 transform hover:scale-105"
               style={{
                 boxShadow:
@@ -137,7 +145,7 @@ const ConnectionOnboardingAnimation = () => {
               }}
             >
               <PlusIcon />
-            </div>
+            </Link>
           </div>
         </div>
 
@@ -441,7 +449,7 @@ const ConnectionOnboardingAnimation = () => {
                 width="134"
                 height="134"
                 rx="48"
-                fill="#1e40af"
+                fill="#7851A9"
               />
               {/* <text
                 x="246"
@@ -457,7 +465,7 @@ const ConnectionOnboardingAnimation = () => {
                 textAnchor="middle"
                 className="fill-white text-md font-bold"
               >
-                DATATRAM
+                Datatram
               </text>
               {/* <circle cx="230" cy="180" r="8" fill="#3b82f6" />
               <circle cx="246" cy="185" r="6" fill="#60a5fa" />
@@ -652,7 +660,8 @@ const ConnectionOnboardingAnimation = () => {
                 </div>
               </div>
             ))}
-            <div
+            <Link
+              href="/dashboard/destinations"
               className="flex items-center justify-center w-12 h-12 bg-white rounded-lg shadow-lg hover:shadow-purple-400/50 transition-all duration-300 cursor-pointer border border-gray-200 transform hover:scale-105"
               style={{
                 boxShadow:
@@ -660,7 +669,7 @@ const ConnectionOnboardingAnimation = () => {
               }}
             >
               <PlusIcon />
-            </div>
+            </Link>
             <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2 -mb-8 ">
               Destinations
               <Tooltip>
@@ -678,6 +687,12 @@ const ConnectionOnboardingAnimation = () => {
             </h3>
           </div>
         </div>
+      </div>
+      <div className="mx-auto text-center text-white bg-purple-600 py-3 px-4 mt-8 rounded-xl w-[35%]">
+        <Link href="/dashboard/new-connection">
+          {' '}
+          Create your first connection{' '}
+        </Link>
       </div>
     </div>
   );

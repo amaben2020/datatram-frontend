@@ -18,7 +18,7 @@ const Page = () => {
     // <section className="min-h-screen flex justify-center items-center px-4 py-8 sm:px-6 lg:px-8">
     //   <ConnectionOnboardingAnimation />
     // </section>
-    <section className="w-screen min-h-screen flex justify-center items-center">
+    <section className="w-[80vw] min-h-screen flex justify-center items-center">
       <ConnectionOnboardingAnimation />
     </section>
   );
