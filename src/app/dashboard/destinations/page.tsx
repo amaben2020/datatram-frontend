@@ -1,15 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import {
-  Plus,
-  Edit,
-  Trash2,
-  Database,
-  Target,
-  Divide,
-  LucideClockFading,
-} from 'lucide-react';
+import { Plus, Edit, Trash2, Target, LucideClockFading } from 'lucide-react';
 import {
   useCreateDestination,
   useDeleteDestination,
@@ -17,30 +9,6 @@ import {
   useUpdateDestination,
 } from '@/hooks/services';
 import Image from 'next/image';
-
-// Mock data and hooks for demonstration
-const mockDestinations = [
-  {
-    id: 1,
-    name: 'Data Warehouse',
-    projectId: 'analytics-prod',
-    image: null,
-    createdAt: '2024-01-15T10:30:00Z',
-    updatedAt: '2024-01-15T10:30:00Z',
-    metadata: { region: 'us-east-1' },
-    userId: 1,
-  },
-  {
-    id: 2,
-    name: 'ML Pipeline',
-    projectId: 'ml-training',
-    image: null,
-    createdAt: '2024-01-16T14:20:00Z',
-    updatedAt: '2024-01-16T14:20:00Z',
-    metadata: { environment: 'production' },
-    userId: 1,
-  },
-];
 
 const DestinationsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -311,6 +279,24 @@ const DestinationsPage = () => {
 
               <div>
                 <label className="block text-purple-600 text-sm font-medium mb-2">
+                  Url
+                </label>
+                <input
+                  type="text"
+                  value={formData.url}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      url: e.target.value,
+                    }))
+                  }
+                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-purple-600 focus:border-blue-400 focus:outline-none"
+                  placeholder="Enter Url"
+                />
+              </div>
+
+              <div>
+                <label className="block text-purple-600 text-sm font-medium mb-2">
                   Image
                 </label>
                 <input
@@ -319,11 +305,14 @@ const DestinationsPage = () => {
                   onChange={handleImageChange}
                   className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white file:mr-4 file:py-1 file:px-4 file:rounded-lg file:border-0 file:bg-blue-500 file:text-white hover:file:bg-blue-600"
                 />
+
                 {imagePreview && (
-                  <img
-                    src={imagePreview}
+                  <Image
+                    src={`http://localhost:8000/uploads/${imagePreview}`}
                     alt="Preview"
-                    className="w-16 h-16 object-cover rounded-lg mt-2"
+                    className="w-16 h-16 object-cover rounded-lg mx-auto mt-3"
+                    height={26}
+                    width={26}
                   />
                 )}
               </div>

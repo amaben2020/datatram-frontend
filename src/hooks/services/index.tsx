@@ -209,6 +209,7 @@ export const useCreateDestination = () => {
       formData.append('name', destinationData.name);
       if (destinationData.projectId)
         formData.append('projectId', destinationData.projectId);
+      if (destinationData.url) formData.append('url', destinationData.url);
       if (destinationData.metadata)
         formData.append('metadata', JSON.stringify(destinationData.metadata));
 
@@ -241,6 +242,7 @@ export const useUpdateDestination = () => {
       formData.append('name', destinationData.name);
       if (destinationData.projectId)
         formData.append('projectId', destinationData.projectId);
+      if (destinationData.url) formData.append('url', destinationData.url);
       if (destinationData.metadata)
         formData.append('metadata', JSON.stringify(destinationData.metadata));
 
