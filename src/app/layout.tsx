@@ -15,6 +15,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { TokenProvider } from './context/TokenContext';
 import { usePathname } from 'next/navigation';
+import { ReactQueryClientProvider } from '@/components/providers/react-query';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -104,7 +105,9 @@ export default function RootLayout({
               </SignedIn>
             </header>
           )}
-          <TokenProvider>{children}</TokenProvider>
+          <TokenProvider>
+            <ReactQueryClientProvider>{children} </ReactQueryClientProvider>
+          </TokenProvider>
         </body>
       </html>
     </ClerkProvider>

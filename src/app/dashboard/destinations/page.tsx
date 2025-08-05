@@ -1,7 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Database, Target, Image } from 'lucide-react';
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Database,
+  Target,
+  Divide,
+  LucideClockFading,
+} from 'lucide-react';
+import {
+  useCreateDestination,
+  useDeleteDestination,
+  useDestinations,
+  useUpdateDestination,
+} from '@/hooks/services';
+import Image from 'next/image';
 
 // Mock data and hooks for demonstration
 const mockDestinations = [
@@ -26,37 +41,6 @@ const mockDestinations = [
     userId: 1,
   },
 ];
-
-// Mock hooks
-const useDestinations = () => ({
-  data: mockDestinations,
-  isLoading: false,
-  error: null,
-});
-
-const useCreateDestination = () => ({
-  mutateAsync: async (data) => {
-    console.log('Creating destination:', data);
-    return { id: Date.now(), ...data };
-  },
-  isPending: false,
-});
-
-const useUpdateDestination = () => ({
-  mutateAsync: async (data) => {
-    console.log('Updating destination:', data);
-    return data;
-  },
-  isPending: false,
-});
-
-const useDeleteDestination = () => ({
-  mutateAsync: async (id) => {
-    console.log('Deleting destination:', id);
-    return { success: true };
-  },
-  isPending: false,
-});
 
 const DestinationsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -137,13 +121,13 @@ const DestinationsPage = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+  //       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
+  //     </div>
+  //   );
+  // }
 
   if (error) {
     return (
@@ -159,7 +143,7 @@ const DestinationsPage = () => {
   }
 
   return (
-    <div className="min-h-screen p-8 w-[100%]">
+    <div className="min-h-screen p-8 min-w-[100%]">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -179,6 +163,12 @@ const DestinationsPage = () => {
         </div>
 
         {/* Destinations Grid */}
+
+        {isLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <LucideClockFading />
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {destinations?.map((destination) => (
             <div
@@ -191,7 +181,8 @@ const DestinationsPage = () => {
                     <Image
                       height={10}
                       width={10}
-                      src={destination.image}
+                      // src={`http://localhost:8000/uploads/${destination.image}`}
+                      src="http://localhost:8000/uploads/2bb4b8c2-11b2-4fd1-a93f-51e9e14281ed-diagram-export-07-07-2025-21_22_44.png"
                       alt={destination.name}
                       className="w-10 h-10 rounded-lg object-cover"
                     />
@@ -257,8 +248,8 @@ const DestinationsPage = () => {
         {/* Empty State */}
         {destinations?.length === 0 && (
           <div className="text-center py-16">
-            <Target size={64} className="text-blue-400 mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold text-white mb-2">
+            <Target size={64} className="text-purple-600 mx-auto mb-4" />
+            <h3 className="text-2xl font-semibold text-purple-600 mb-2">
               No destinations yet
             </h3>
             <p className="text-purple-600 mb-6">

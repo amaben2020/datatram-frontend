@@ -182,7 +182,7 @@ export const useDestinations = () => {
     queryKey: ['destinations'],
     queryFn: async (): Promise<Destination[]> => {
       const { data } = await api.get('/destinations/all');
-      return data;
+      return data?.data;
     },
   });
 };

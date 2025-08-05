@@ -2,21 +2,11 @@
 
 import { useState } from 'react';
 import {
-  Settings,
-  Users,
-  FileText,
-  BarChart3,
-  Mail,
-  Calendar,
-  Search,
-  Bell,
-  User,
   LogOut,
   ChevronRight,
   CableIcon,
-  PlaneLanding,
   Database,
-  MonitorCog,
+  Target,
 } from 'lucide-react';
 import { SignOutButton, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
@@ -29,17 +19,8 @@ export function AppSidebar() {
   const navigationItems = [
     { name: 'Connections', icon: CableIcon, href: '/dashboard' },
     { name: 'Sources', icon: Database, href: '/dashboard/sources' },
-    { name: 'Destinations', icon: MonitorCog, href: '/dashboard/destinations' },
-    // { name: 'Team', icon: Users, href: '#' },
-    // { name: 'Calendar', icon: Calendar, href: '#' },
-    // { name: 'Messages', icon: Mail, href: '#' },
+    { name: 'Destinations', icon: Target, href: '/dashboard/destinations' },
   ];
-
-  // const settingsItems = [
-  //   { name: 'Settings', icon: Settings, href: '#' },
-  //   { name: 'Notifications', icon: Bell, href: '#' },
-  //   { name: 'Profile', icon: User, href: '#' },
-  // ];
 
   return (
     <div className="h-screen w-64 bg-white border-r border-purple-100 shadow-sm flex flex-col">
@@ -100,48 +81,6 @@ export function AppSidebar() {
             })}
           </nav>
         </div>
-
-        {/* Settings Group */}
-        {/* <div>
-          <div className="mb-3">
-            <h3 className="text-xs font-semibold text-purple-600 uppercase tracking-wider">
-              Account
-            </h3>
-          </div>
-          <nav className="space-y-1">
-            {settingsItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeItem === item.name;
-              return (
-                <button
-                  key={item.name}
-                  onClick={() => setActiveItem(item.name)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
-                    isActive
-                      ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md'
-                      : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-                  }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <Icon
-                      className={`w-5 h-5 ${
-                        isActive ? 'text-white' : 'text-purple-500'
-                      }`}
-                    />
-                    <span>{item.name}</span>
-                  </div>
-                  <ChevronRight
-                    className={`w-4 h-4 transition-transform ${
-                      isActive
-                        ? 'text-white opacity-100'
-                        : 'opacity-0 group-hover:opacity-100 text-purple-400'
-                    }`}
-                  />
-                </button>
-              );
-            })}
-          </nav>
-        </div> */}
       </div>
 
       {/* Footer */}
