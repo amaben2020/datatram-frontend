@@ -1,4 +1,3 @@
-import ConnectionOnboardingAnimation from '@/components/organisms/connector';
 import { GoogleGeminiEffectComponent } from '@/components/organisms/gemini';
 import { MacbookScroll } from '@/components/organisms/macbook-scroll';
 
@@ -6,8 +5,6 @@ export default function Home() {
   return (
     <div>
       <main>
-        {/* <ConnectionOnboardingAnimation /> */}
-
         <GoogleGeminiEffectComponent />
 
         <MacbookScrollDemo />
@@ -18,7 +15,7 @@ export default function Home() {
 
 import React from 'react';
 
-export function MacbookScrollDemo() {
+function MacbookScrollDemo() {
   return (
     <div className="w-full overflow-hidden bg-white dark:bg-[#0B0B0F]">
       <MacbookScroll

@@ -180,7 +180,7 @@ export const useDeleteSource = () => {
 export const useDestinations = () => {
   return useQuery({
     queryKey: ['destinations'],
-    queryFn: async (): Promise<{ data: Destination[] }> => {
+    queryFn: async (): Promise<Destination[]> => {
       const { data } = await api.get('/destinations/all');
       return data?.data;
     },

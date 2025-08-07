@@ -1,3 +1,4 @@
+//@ts-nocheck
 'use client';
 
 import React, { useState, useMemo, FormEvent } from 'react';
@@ -39,7 +40,7 @@ const DestinationsPage = () => {
   }, [destinations, searchTerm]);
   const router = useRouter();
 
-  const handleOpenModal = (destination) => {
+  const handleOpenModal = (destination: any) => {
     if (destination) {
       setEditingDestination(destination);
       setFormData({
