@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Target, LucideClockFading } from 'lucide-react';
+import { Plus, Edit, Trash2, Target } from 'lucide-react';
 import {
   useCreateDestination,
   useDeleteDestination,
@@ -17,6 +17,7 @@ const DestinationsPage = () => {
     name: '',
     projectId: '',
     metadata: {},
+    url: '',
   });
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -33,11 +34,12 @@ const DestinationsPage = () => {
         name: destination.name,
         projectId: destination.projectId || '',
         metadata: destination.metadata || {},
+        url: destination.url || '',
       });
       setImagePreview(destination.image || null);
     } else {
       setEditingDestination(null);
-      setFormData({ name: '', projectId: '', metadata: {} });
+      setFormData({ name: '', projectId: '', metadata: {}, url: '' });
       setImagePreview(null);
     }
     setIsModalOpen(true);
@@ -46,7 +48,7 @@ const DestinationsPage = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingDestination(null);
-    setFormData({ name: '', projectId: '', metadata: {} });
+    setFormData({ name: '', projectId: '', metadata: {}, url: '' });
     setImagePreview(null);
   };
 
@@ -117,7 +119,7 @@ const DestinationsPage = () => {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">Destinations</h1>
-            <p className="text-black">
+            <p className="text-purple-600">
               Manage your data output destinations and endpoints
             </p>
           </div>
@@ -134,7 +136,8 @@ const DestinationsPage = () => {
 
         {isLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <LucideClockFading />
+            {/* <LucideClockFading /> */}
+            Loading...
           </div>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -149,8 +152,8 @@ const DestinationsPage = () => {
                     <Image
                       height={10}
                       width={10}
-                      // src={`http://localhost:8000/uploads/${destination.image}`}
-                      src="http://localhost:8000/uploads/2bb4b8c2-11b2-4fd1-a93f-51e9e14281ed-diagram-export-07-07-2025-21_22_44.png"
+                      src={`http://localhost:8000/uploads/${destination.image}`}
+                      // src="http://localhost:8000/uploads/2bb4b8c2-11b2-4fd1-a93f-51e9e14281ed-diagram-export-07-07-2025-21_22_44.png"
                       alt={destination.name}
                       className="w-10 h-10 rounded-lg object-cover"
                     />
@@ -283,7 +286,7 @@ const DestinationsPage = () => {
                 </label>
                 <input
                   type="text"
-                  value={formData.url}
+                  value={formData?.url}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -292,6 +295,24 @@ const DestinationsPage = () => {
                   }
                   className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-purple-600 focus:border-blue-400 focus:outline-none"
                   placeholder="Enter Url"
+                />
+              </div>
+
+              <div>
+                <label className="block text-purple-600 text-sm font-medium mb-2">
+                  Metadata
+                </label>
+                <textarea
+                  type="text"
+                  value={formData.metadata}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      metadata: e.target.value,
+                    }))
+                  }
+                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-purple-600 focus:border-blue-400 focus:outline-none"
+                  placeholder="Enter Metadata"
                 />
               </div>
 

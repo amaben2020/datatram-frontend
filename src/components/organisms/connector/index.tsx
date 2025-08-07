@@ -689,7 +689,7 @@ const ConnectionOnboardingAnimation = () => {
         </div>
       </div>
       <div className="mx-auto text-center text-white bg-purple-600 py-3 px-4 mt-8 rounded-xl w-[35%]">
-        <Link href="/dashboard/new-connection">
+        <Link href="/dashboard/new-connection" className="font-bold">
           {' '}
           Create your first connection{' '}
         </Link>

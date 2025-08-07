@@ -9,6 +9,7 @@ import {
   SignedIn,
   SignedOut,
   UserButton,
+  useAuth,
 } from '@clerk/nextjs';
 import { dark, shadesOfPurple } from '@clerk/themes';
 import { Geist, Geist_Mono } from 'next/font/google';
@@ -16,6 +17,9 @@ import './globals.css';
 import { TokenProvider } from './context/TokenContext';
 import { usePathname } from 'next/navigation';
 import { ReactQueryClientProvider } from '@/components/providers/react-query';
+import Link from 'next/link';
+import { IconDashboard } from '@tabler/icons-react';
+import { Home } from 'lucide-react';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -38,7 +42,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  console.log(pathname);
 
   const hideNav = [
     '/dashboard',
@@ -47,7 +50,6 @@ export default function RootLayout({
     '/dashboard/destinations',
   ].includes(pathname);
 
-  console.log(hideNav);
   return (
     <ClerkProvider
       appearance={{
@@ -101,10 +103,20 @@ export default function RootLayout({
                 </SignUpButton>
               </SignedOut>
               <SignedIn>
-                <UserButton />
+                <div className="flex">
+                  <UserButton />
+                  <Link
+                    href={'/dashboard'}
+                    className="text-white bg-purple-600 px-4 py-2 rounded-lg ml-4 cursor-pointer:bg-purple-800 transition-all ease-in-out duration-300 hover:bg-purple-800 font-bold flex gap-2 items-center"
+                  >
+                    <Home />
+                    Dashboard
+                  </Link>
+                </div>
               </SignedIn>
             </header>
           )}
+
           <TokenProvider>
             <ReactQueryClientProvider>{children} </ReactQueryClientProvider>
           </TokenProvider>

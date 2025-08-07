@@ -69,6 +69,7 @@ export interface CreateDestinationData {
   projectId?: string;
   metadata?: any;
   image?: File;
+  url?: string;
 }
 
 export interface CreateConnectionData {

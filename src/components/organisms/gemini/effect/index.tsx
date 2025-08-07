@@ -1,6 +1,9 @@
 'use client';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@clerk/nextjs';
 import { motion, MotionValue } from 'motion/react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 const transition = {
@@ -19,6 +22,9 @@ export const GoogleGeminiEffect = ({
   description?: string;
   className?: string;
 }) => {
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+
   return (
     <div className={cn('sticky top-80', className)}>
       <p className="text-lg md:text-7xl font-bold pb-4 text-center bg-clip-text text-transparent bg-gradient-to-b from-purple-700 to-purple-300">
@@ -27,6 +33,21 @@ export const GoogleGeminiEffect = ({
       <p className="text-xs md:text-xl font-semibold text-center text-purple-400 mt-4 max-w-lg mx-auto">
         {description || `Sync from any data source to BigQuery, in minutes.`}
       </p>
+
+      <div className="flex justify-center items-center w-full">
+        {/* {isSignedIn && (
+          <div
+            className="relative inline-flex h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 cursor-pointer mt-4"
+            onClick={() => router.push('/dashboard')}
+          >
+            <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
+            <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-white px-3 py-1 text-sm   text-purple-800 backdrop-blur-3xl font-bold">
+              <Link href="/dashboard">Visit Dashboard</Link>
+            </span>
+          </div>
+        )} */}
+      </div>
+
       <div className="w-full h-[890px] -top-60 md:-top-40  flex items-center justify-center bg-red-transparent absolute ">
         <button className="font-bold bg-white rounded-full md:px-4 md:py-2 px-2 py-1 md:mt-24 mt-8 z-30 md:text-base text-sm text-purple-600 w-fit mx-auto shadow shadow-purple-400">
           DataTram
