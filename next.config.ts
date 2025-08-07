@@ -7,7 +7,8 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: 'localhost',
+        // hostname: 'localhost',
+        hostname: 'datatram-backend.onrender.com',
       },
     ],
   },
