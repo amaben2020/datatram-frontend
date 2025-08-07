@@ -1,4 +1,3 @@
-// hooks/api/useApi.ts
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -13,9 +12,9 @@ const api = axios.create({
 // Add auth interceptor (assuming you're using Clerk)
 api.interceptors.request.use(async (config) => {
   // Get auth token from Clerk or your auth provider
+
   const token = await window.Clerk?.session?.getToken();
 
-  console.log('TOKEN INSIDE INTERCEPTOR', token);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -32,7 +31,7 @@ export interface Source {
   file?: string;
   createdAt: string;
   updatedAt: string;
-  metadata?: any;
+  metadata?: null;
   userId: number;
 }
 
@@ -43,7 +42,7 @@ export interface Destination {
   image?: string;
   createdAt: string;
   updatedAt: string;
-  metadata?: any;
+  metadata?: null;
   userId: number;
 }
 
@@ -59,7 +58,7 @@ export interface CreateSourceData {
   name: string;
   host?: string;
   type?: string;
-  metadata?: any;
+  metadata?: null;
   file?: File;
   image?: File;
 }
@@ -67,7 +66,7 @@ export interface CreateSourceData {
 export interface CreateDestinationData {
   name: string;
   projectId?: string;
-  metadata?: any;
+  metadata?: null;
   image?: File;
   url?: string;
 }
@@ -82,7 +81,7 @@ export interface CreateConnectionData {
 export const useSources = () => {
   return useQuery({
     queryKey: ['sources'],
-    queryFn: async (): Promise<Source[]> => {
+    queryFn: async (): Promise<{ data: Source[] }> => {
       const { data } = await api.get('/sources/all');
       return data;
     },
@@ -181,7 +180,7 @@ export const useDeleteSource = () => {
 export const useDestinations = () => {
   return useQuery({
     queryKey: ['destinations'],
-    queryFn: async (): Promise<Destination[]> => {
+    queryFn: async (): Promise<{ data: Destination[] }> => {
       const { data } = await api.get('/destinations/all');
       return data?.data;
     },

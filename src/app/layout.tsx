@@ -1,24 +1,21 @@
 'use client';
-// import { type Metadata } from 'next';
+
 import {
   ClerkProvider,
-  SignIn,
   SignInButton,
-  SignUp,
   SignUpButton,
   SignedIn,
   SignedOut,
   UserButton,
-  useAuth,
 } from '@clerk/nextjs';
-import { dark, shadesOfPurple } from '@clerk/themes';
+import { shadesOfPurple } from '@clerk/themes';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { TokenProvider } from './context/TokenContext';
 import { usePathname } from 'next/navigation';
 import { ReactQueryClientProvider } from '@/components/providers/react-query';
 import Link from 'next/link';
-import { IconDashboard } from '@tabler/icons-react';
+
 import { Home } from 'lucide-react';
 
 const geistSans = Geist({

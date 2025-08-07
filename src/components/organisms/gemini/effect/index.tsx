@@ -2,13 +2,12 @@
 import { cn } from '@/lib/utils';
 import { useAuth } from '@clerk/nextjs';
 import { motion, MotionValue } from 'motion/react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
 const transition = {
   duration: 0,
-  ease: 'linear',
+  ease: 'linear' as const,
 };
 
 export const GoogleGeminiEffect = ({

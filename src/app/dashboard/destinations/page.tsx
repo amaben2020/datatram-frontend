@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, FormEvent } from 'react';
 import { Plus, Edit, Trash2, Target, Search, ChevronLeft } from 'lucide-react';
 import {
   useCreateDestination,
@@ -39,7 +39,6 @@ const DestinationsPage = () => {
   }, [destinations, searchTerm]);
   const router = useRouter();
 
-  // TODO: Change Modal to accertinity
   const handleOpenModal = (destination) => {
     if (destination) {
       setEditingDestination(destination);
@@ -76,7 +75,7 @@ const DestinationsPage = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
@@ -94,7 +93,7 @@ const DestinationsPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this destination?')) {
       try {
         await deleteMutation.mutateAsync(id);

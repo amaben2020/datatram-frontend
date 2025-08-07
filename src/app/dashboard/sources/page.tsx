@@ -12,6 +12,7 @@ import {
   ChevronLeft,
 } from 'lucide-react';
 import {
+  Source,
   useCreateSource,
   useDeleteSource,
   useSources,
@@ -22,7 +23,7 @@ import { useRouter } from 'next/navigation';
 
 const SourcesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingSource, setEditingSource] = useState(null);
+  const [editingSource, setEditingSource] = useState<Source | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     name: '',
@@ -35,7 +36,7 @@ const SourcesPage = () => {
 
   const { data: sources, isLoading, error } = useSources();
   const router = useRouter();
-  console.log(sources);
+
   const createMutation = useCreateSource();
   const updateMutation = useUpdateSource();
   const deleteMutation = useDeleteSource();
@@ -50,7 +51,7 @@ const SourcesPage = () => {
     );
   }, [sources?.data, searchTerm]);
 
-  const handleOpenModal = (source) => {
+  const handleOpenModal = (source?: Source) => {
     if (source) {
       setEditingSource(source);
       setFormData({
@@ -107,7 +108,7 @@ const SourcesPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this source?')) {
       try {
         await deleteMutation.mutateAsync(id);
@@ -267,14 +268,14 @@ const SourcesPage = () => {
           {!filteredSources?.length && searchTerm && (
             <div className="col-span-full text-center py-8">
               <p className="text-purple-600">
-                No sources found matching "{searchTerm}"
+                No sources found matching &quot;{searchTerm}&quot;
               </p>
             </div>
           )}
         </div>
 
         {/* Empty State */}
-        {sources?.length === 0 && (
+        {sources?.data?.length === 0 && (
           <div className="text-center py-16">
             <Database size={64} className="text-purple-600 mx-auto mb-4" />
             <h3 className="text-2xl font-semibold text-purple-600 mb-2">
