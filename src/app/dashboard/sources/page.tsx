@@ -1,7 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Plus, Upload, Edit, Trash2, Database, FileText } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import {
+  Plus,
+  Upload,
+  Edit,
+  Trash2,
+  Database,
+  FileText,
+  Search,
+  ChevronLeft,
+} from 'lucide-react';
 import {
   useCreateSource,
   useDeleteSource,
@@ -9,10 +18,12 @@ import {
   useUpdateSource,
 } from '@/hooks/services';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 const SourcesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSource, setEditingSource] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     host: '',
@@ -23,10 +34,21 @@ const SourcesPage = () => {
   const [imagePreview, setImagePreview] = useState(null);
 
   const { data: sources, isLoading, error } = useSources();
+  const router = useRouter();
   console.log(sources);
   const createMutation = useCreateSource();
   const updateMutation = useUpdateSource();
   const deleteMutation = useDeleteSource();
+
+  // Filter sources based on search term
+  const filteredSources = useMemo(() => {
+    if (!sources?.data || !searchTerm.trim()) {
+      return sources?.data || [];
+    }
+    return sources.data.filter((source) =>
+      source.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [sources?.data, searchTerm]);
 
   const handleOpenModal = (source) => {
     if (source) {
@@ -118,6 +140,14 @@ const SourcesPage = () => {
     <div className="min-h-screen p-8 min-w-[100%]">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
+        <button
+          type="button"
+          className="flex gap-2 items-center mb-8 text-purple-600 cursor-pointer hover:text-purple-900"
+          onClick={() => router.back()}
+        >
+          <ChevronLeft color="purple" />
+          Back
+        </button>
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-4xl font-bold text-black mb-2">Data Sources</h1>
@@ -134,6 +164,23 @@ const SourcesPage = () => {
           </button>
         </div>
 
+        {/* Search Input */}
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <Search
+              size={20}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-600"
+            />
+            <input
+              type="text"
+              placeholder="Search sources..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-white/10 border border-purple-100 rounded-lg text-purple-600 placeholder-purple-600 focus:border-purple-400 focus:outline-none"
+            />
+          </div>
+        </div>
+
         {/* Loading State */}
         {isLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -143,7 +190,7 @@ const SourcesPage = () => {
 
         {/* Sources Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sources?.data?.map((source) => (
+          {filteredSources?.map((source) => (
             <div
               key={source.id}
               className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-purple-100 hover:border-blue-400/50 transition-all duration-300 group shadow-md shadow-purple-200"
@@ -213,8 +260,16 @@ const SourcesPage = () => {
             </div>
           ))}
 
-          {!sources?.data.length && (
+          {!filteredSources?.length && !searchTerm && (
             <p className="text-purple-600">No sources yet</p>
+          )}
+
+          {!filteredSources?.length && searchTerm && (
+            <div className="col-span-full text-center py-8">
+              <p className="text-purple-600">
+                No sources found matching "{searchTerm}"
+              </p>
+            </div>
           )}
         </div>
 

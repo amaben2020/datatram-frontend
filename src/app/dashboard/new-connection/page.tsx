@@ -11,6 +11,7 @@ import {
   Target,
   CableCarIcon,
   ChevronLeft,
+  CableIcon,
 } from 'lucide-react';
 import {
   useConnections,
@@ -166,7 +167,7 @@ const ConnectionsPage = () => {
           <div>
             <h1 className="text-4xl font-bold text-purple mb-2">Connections</h1>
             <p className="text-purple-500">
-              Link your data sources to destinations
+              Create a connection between a source and destination
             </p>
           </div>
           <button
@@ -236,6 +237,16 @@ const ConnectionsPage = () => {
                     aria-label="Delete connection"
                   >
                     <Trash2 size={16} className="text-red-400" />
+                  </button>
+
+                  <button
+                    // onClick={() => handleDelete(connection.id)}
+                    // TODO: Send source data to destination here
+                    className="p-2 hover:bg-purple-500/20 rounded-lg transition-colors flex gap-2 items-center"
+                    aria-label="Create connection"
+                  >
+                    <CableIcon size={16} className="text-purple-600" />
+                    Connect
                   </button>
                 </div>
               </div>
@@ -310,7 +321,7 @@ const ConnectionsPage = () => {
                       sourceId: e.target.value,
                     }))
                   }
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-purple placeholder-purple-400 focus:border-purple-400 focus:outline-none transition-colors"
+                  className="w-full bg-white/10 border border-purple-600 rounded-lg px-3 py-2 text-purple placeholder-purple-400 focus:border-purple-400 focus:outline-none transition-colors"
                   required
                   aria-required
                 >
@@ -335,7 +346,7 @@ const ConnectionsPage = () => {
                       destinationId: e.target.value,
                     }))
                   }
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-purple placeholder-purple-400 focus:border-purple-400 focus:outline-none transition-colors"
+                  className="w-full bg-white/10   rounded-lg px-3 py-2 text-purple placeholder-purple-400 focus:border-purple-400 focus:outline-none transition-colors border border-purple-600"
                   required
                 >
                   <option value="">Select a destination</option>

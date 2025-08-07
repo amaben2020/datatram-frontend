@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Target } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Plus, Edit, Trash2, Target, Search, ChevronLeft } from 'lucide-react';
 import {
   useCreateDestination,
   useDeleteDestination,
@@ -9,10 +9,12 @@ import {
   useUpdateDestination,
 } from '@/hooks/services';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 const DestinationsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDestination, setEditingDestination] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     projectId: '',
@@ -25,6 +27,17 @@ const DestinationsPage = () => {
   const createMutation = useCreateDestination();
   const updateMutation = useUpdateDestination();
   const deleteMutation = useDeleteDestination();
+
+  // Filter destinations based on search term
+  const filteredDestinations = useMemo(() => {
+    if (!destinations || !searchTerm.trim()) {
+      return destinations || [];
+    }
+    return destinations.filter((destination) =>
+      destination.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [destinations, searchTerm]);
+  const router = useRouter();
 
   // TODO: Change Modal to accertinity
   const handleOpenModal = (destination) => {
@@ -120,6 +133,14 @@ const DestinationsPage = () => {
     <div className="min-h-screen p-8 min-w-[100%]">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
+        <button
+          type="button"
+          className="flex gap-2 items-center mb-8 text-purple-600 cursor-pointer hover:text-purple-900"
+          onClick={() => router.back()}
+        >
+          <ChevronLeft color="purple" />
+          Back
+        </button>
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-4xl font-bold text-black mb-2">Destinations</h1>
@@ -129,11 +150,28 @@ const DestinationsPage = () => {
           </div>
           <button
             onClick={() => handleOpenModal()}
-            className="   px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 bg-purple-600 text-white"
+            className="   px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 bg-purple-600 text-white font-bold"
           >
             <Plus size={20} />
             Add Destination
           </button>
+        </div>
+
+        {/* Search Input */}
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <Search
+              size={20}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-600"
+            />
+            <input
+              type="text"
+              placeholder="Search destinations..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-white/10 border border-purple-100 rounded-lg text-purple-600 placeholder-purple-600 focus:border-purple-400 focus:outline-none"
+            />
+          </div>
         </div>
 
         {/* Destinations Grid */}
@@ -145,10 +183,10 @@ const DestinationsPage = () => {
           </div>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {destinations?.map((destination) => (
+          {filteredDestinations?.map((destination) => (
             <div
               key={destination.id}
-              className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:border-blue-400/50 transition-all duration-300 group   shadow-md shadow-purple-200"
+              className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border   hover:border-purple-400/50 transition-all duration-300 group   shadow-md shadow-purple-200"
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
@@ -164,7 +202,7 @@ const DestinationsPage = () => {
                     />
                   ) : (
                     <div className="w-10 h-10 bg-gradient-to-br bg-purple-600 rounded-lg flex items-center justify-center">
-                      <Target size={20} className="text-white" />
+                      <Target size={20} className="text-purple-600" />
                     </div>
                   )}
                   <div>
@@ -219,10 +257,24 @@ const DestinationsPage = () => {
               </div>
             </div>
           ))}
+
+          {!filteredDestinations?.length && searchTerm && (
+            <div className="col-span-full text-center py-8">
+              <p className="text-purple-600">
+                No destinations found matching "{searchTerm}"
+              </p>
+            </div>
+          )}
+
+          {!filteredDestinations.length && !searchTerm && (
+            <div className="col-span-full text-center py-8">
+              <p className="text-purple-600">No destinations added yet.</p>
+            </div>
+          )}
         </div>
 
         {/* Empty State */}
-        {destinations?.length === 0 && (
+        {destinations?.length === 0 && !searchTerm && (
           <div className="text-center py-16">
             <Target size={64} className="text-purple-600 mx-auto mb-4" />
             <h3 className="text-2xl font-semibold text-purple-600 mb-2">
@@ -233,7 +285,7 @@ const DestinationsPage = () => {
             </p>
             <button
               onClick={() => handleOpenModal()}
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-3 rounded-lg inline-flex items-center gap-2"
+              className="bg-purple-600 text-white px-6 py-3 rounded-lg inline-flex items-center gap-2"
             >
               <Plus size={20} />
               Add Destination
@@ -245,8 +297,8 @@ const DestinationsPage = () => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md border border-white/20">
-            <h2 className="text-2xl font-bold text-white mb-6">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md border  ">
+            <h2 className="text-2xl font-bold text-purple-600 mb-6">
               {editingDestination ? 'Edit Destination' : 'Create Destination'}
             </h2>
 
@@ -261,7 +313,7 @@ const DestinationsPage = () => {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-purple-600 focus:border-blue-400 focus:outline-none"
+                  className="w-full bg-white/10 border   rounded-lg px-3 py-2 text-purple-600 placeholder-purple-600 focus:border-purple-400 focus:outline-none border-purple-600"
                   placeholder="Enter destination name"
                   required
                 />
@@ -280,7 +332,7 @@ const DestinationsPage = () => {
                       projectId: e.target.value,
                     }))
                   }
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-purple-600 focus:border-blue-400 focus:outline-none"
+                  className="w-full bg-white/10 border   rounded-lg px-3 py-2 text-purple-600 placeholder-purple-600 focus:border-purple-400 focus:outline-none border-purple-600"
                   placeholder="Enter project ID"
                 />
               </div>
@@ -298,7 +350,7 @@ const DestinationsPage = () => {
                       url: e.target.value,
                     }))
                   }
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-purple-600 focus:border-blue-400 focus:outline-none"
+                  className="w-full bg-white/10 border   rounded-lg px-3 py-2 text-purple-600 placeholder-purple-600 focus:border-purple-400 focus:outline-none border-purple-600"
                   placeholder="Enter Url"
                 />
               </div>
@@ -316,7 +368,7 @@ const DestinationsPage = () => {
                       metadata: e.target.value,
                     }))
                   }
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-purple-600 focus:border-blue-400 focus:outline-none"
+                  className="w-full bg-white/10 border   rounded-lg px-3 py-2 text-purple-600 placeholder-purple-600 focus:border-purple-400 focus:outline-none border-purple-600"
                   placeholder="Enter Metadata"
                 />
               </div>
@@ -329,7 +381,7 @@ const DestinationsPage = () => {
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white file:mr-4 file:py-1 file:px-4 file:rounded-lg file:border-0 file:bg-blue-500 file:text-white hover:file:bg-blue-600"
+                  className="w-full bg-white/10 border   rounded-lg px-3 py-2 text-white file:mr-4 file:py-1 file:px-4 file:rounded-lg file:border-0 file:bg-purple-500 file:text-white  "
                 />
 
                 {imagePreview && (
@@ -347,7 +399,7 @@ const DestinationsPage = () => {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition-colors"
+                  className="flex-1 bg-white border border-red-600 text-red-600 py-2 px-4 rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
@@ -357,7 +409,7 @@ const DestinationsPage = () => {
                   disabled={
                     createMutation.isPending || updateMutation.isPending
                   }
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white py-2 px-4 rounded-lg transition-all disabled:opacity-50"
+                  className="flex-1 bg-gradient-to-r text-white bg-purple-600 py-2 px-4 rounded-lg transition-all disabled:opacity-50"
                 >
                   {createMutation.isPending || updateMutation.isPending
                     ? 'Saving...'
