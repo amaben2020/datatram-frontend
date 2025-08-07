@@ -91,13 +91,17 @@ const DestinationsPage = () => {
     }
   };
 
-  // if (isLoading) {
-  //   return (
-  //     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
-  //       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
-  //     </div>
-  //   );
-  // }
+  if (isLoading) {
+    return (
+      <div
+        className="animate-spin inline-block size-6 border-3 border-current border-t-transparent text-purple-600 rounded-full"
+        role="status"
+        aria-label="loading"
+      >
+        <span className="sr-only">Loading...</span>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -118,7 +122,7 @@ const DestinationsPage = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Destinations</h1>
+            <h1 className="text-4xl font-bold text-black mb-2">Destinations</h1>
             <p className="text-purple-600">
               Manage your data output destinations and endpoints
             </p>
@@ -152,8 +156,9 @@ const DestinationsPage = () => {
                     <Image
                       height={10}
                       width={10}
-                      src={`http://localhost:8000/uploads/${destination.image}`}
-                      // src="http://localhost:8000/uploads/2bb4b8c2-11b2-4fd1-a93f-51e9e14281ed-diagram-export-07-07-2025-21_22_44.png"
+                      src={`${process.env.NEXT_PUBLIC_BACKEND_URL!}/uploads/${
+                        destination.image
+                      }`}
                       alt={destination.name}
                       className="w-10 h-10 rounded-lg object-cover"
                     />
