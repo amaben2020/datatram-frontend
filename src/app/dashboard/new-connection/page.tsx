@@ -23,6 +23,7 @@ import {
   useUpdateConnection,
 } from '@/hooks/services';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const ConnectionsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -191,9 +192,22 @@ const ConnectionsPage = () => {
                 <div className="flex items-center gap-6 flex-1">
                   {/* Source */}
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-                      <Database size={20} className="text-purple" />
+                    <div className="w-fit rounded-lg flex items-center justify-center shadow-lg">
+                      {connection?.sourceImage == null ? (
+                        <div className="bg-purple-600 p-3 rounded-lg px-5">
+                          <Database size={20} className="text-purple" />
+                        </div>
+                      ) : (
+                        <Image
+                          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${connection.sourceImage}`}
+                          height={60}
+                          width={60}
+                          alt=""
+                          className="rounded-lg"
+                        />
+                      )}
                     </div>
+
                     <div>
                       <h3 className="text-purple font-semibold">
                         {connection.sourceName ||
@@ -210,8 +224,20 @@ const ConnectionsPage = () => {
 
                   {/* Destination */}
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-                      <Target size={20} className="text-purple" />
+                    <div>
+                      {connection?.destinationImage == null ? (
+                        <div className="bg-purple-600 p-3 rounded-lg px-5">
+                          <Target size={20} className="text-purple" />
+                        </div>
+                      ) : (
+                        <Image
+                          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${connection.destinationImage}`}
+                          height={60}
+                          width={60}
+                          alt=""
+                          className="rounded-lg h-12 w-14"
+                        />
+                      )}
                     </div>
                     <div>
                       <h3 className="text-purple font-semibold">

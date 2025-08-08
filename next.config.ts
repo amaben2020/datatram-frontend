@@ -1,5 +1,10 @@
 import type { NextConfig } from 'next';
 
+const remoteHost =
+  process.env.NODE_ENV === 'development'
+    ? 'localhost'
+    : 'datatram-backend.onrender.com';
+
 const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
@@ -7,8 +12,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        // hostname: 'localhost',
-        hostname: 'datatram-backend.onrender.com',
+        hostname: remoteHost,
       },
     ],
   },
