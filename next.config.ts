@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
       {
         hostname: remoteHost,
       },
+      {
+        hostname: 'img.clerk.com',
+      },
     ],
   },
 };

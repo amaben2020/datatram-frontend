@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { SignOutButton, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export function AppSidebar() {
   const [activeItem, setActiveItem] = useState('Dashboard');
@@ -32,7 +33,9 @@ export function AppSidebar() {
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-900">Datatram</h2>
-            <p className="text-sm text-purple-600">Workspace</p>
+            <p className="text-sm text-purple-600">
+              {user?.fullName + `'s` || user?.username || 'Default'} Workspace
+            </p>
           </div>
         </div>
       </div>
@@ -87,9 +90,21 @@ export function AppSidebar() {
       <div className="p-4 border-t border-purple-50">
         <div className="flex items-center space-x-3 p-3 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors cursor-pointer">
           <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
-            <span className="text-white text-sm font-medium">
-              {user?.firstName?.split('')[0]}
-            </span>
+            {/* */}
+
+            {user?.imageUrl.length ? (
+              <Image
+                src={user?.imageUrl || ''}
+                alt=""
+                width={32}
+                height={32}
+                className="rounded-full"
+              />
+            ) : (
+              <span className="text-white text-sm font-medium">
+                {user?.firstName?.split('')[0]}
+              </span>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 truncate">
