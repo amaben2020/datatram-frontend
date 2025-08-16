@@ -327,10 +327,7 @@ const SourcesPage = () => {
                 </label>
                 <input
                   type="text"
-                  value={
-                    formData.host ||
-                    'https://datatram-844630248083.europe-west3.run.app/upload_csv'
-                  }
+                  value={formData.host}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, host: e.target.value }))
                   }

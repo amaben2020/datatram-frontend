@@ -281,6 +281,9 @@ const ConnectionsPage = () => {
           ))}
         </div>
 
+        {/* TODO: Add connections here  */}
+        {/* <div>ALL CONNECTIONS</div> */}
+
         {/* Empty State */}
         {connections?.length === 0 && (
           <div className="text-center py-16">
