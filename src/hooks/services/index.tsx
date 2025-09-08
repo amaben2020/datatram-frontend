@@ -258,12 +258,12 @@ export const useUpdateDestination = () => {
       if (destinationData.url) formData.append('url', destinationData.url);
 
       // Add BigQuery specific fields
-      if (destinationData.serviceKeyJson) {
-        formData.append(
-          'serviceKeyJson',
-          JSON.stringify(destinationData.serviceKeyJson)
-        );
-      }
+      // if (destinationData.serviceKeyJson) {
+      //   formData.append(
+      //     'serviceKeyJson',
+      //     JSON.stringify(destinationData.serviceKeyJson)
+      //   );
+      // }
       if (destinationData.datasetId)
         formData.append('datasetId', destinationData.datasetId);
       if (destinationData.targetTableName)
