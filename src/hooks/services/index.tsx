@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
 // Configure axios defaults
-const api = axios.create({
+export const api = axios.create({
   baseURL: 'http://localhost:8000', // Adjust to your API URL
   headers: {
     'Content-Type': 'application/json',
@@ -63,13 +63,13 @@ export interface CreateSourceData {
   image?: File;
 }
 
-export interface CreateDestinationData {
-  name: string;
-  projectId?: string;
-  metadata?: null;
-  image?: File;
-  url?: string;
-}
+// export interface CreateDestinationData {
+//   name: string;
+//   projectId?: string;
+//   metadata?: null;
+//   image?: File;
+//   url?: string;
+// }
 
 export interface CreateConnectionData {
   sourceId: number;
@@ -207,11 +207,23 @@ export const useCreateDestination = () => {
 
       // Add text fields
       formData.append('name', destinationData.name);
+      formData.append('type', destinationData.type || 'bigquery');
+
       if (destinationData.projectId)
         formData.append('projectId', destinationData.projectId);
       if (destinationData.url) formData.append('url', destinationData.url);
-      if (destinationData.metadata)
-        formData.append('metadata', JSON.stringify(destinationData.metadata));
+
+      // Add BigQuery specific fields
+      // if (destinationData.serviceKeyJson) {
+      //   formData.append(
+      //     'serviceKeyJson',
+      //     JSON.stringify(destinationData.serviceKeyJson)
+      //   );
+      // }
+      if (destinationData.datasetId)
+        formData.append('datasetId', destinationData.datasetId);
+      if (destinationData.targetTableName)
+        formData.append('targetTableName', destinationData.targetTableName);
 
       // Add image
       if (destinationData.image)
@@ -240,13 +252,24 @@ export const useUpdateDestination = () => {
 
       // Add text fields
       formData.append('name', destinationData.name);
+      if (destinationData.type) formData.append('type', destinationData.type);
       if (destinationData.projectId)
         formData.append('projectId', destinationData.projectId);
       if (destinationData.url) formData.append('url', destinationData.url);
-      if (destinationData.metadata)
-        formData.append('metadata', JSON.stringify(destinationData.metadata));
 
-      // Add image
+      // Add BigQuery specific fields
+      if (destinationData.serviceKeyJson) {
+        formData.append(
+          'serviceKeyJson',
+          JSON.stringify(destinationData.serviceKeyJson)
+        );
+      }
+      if (destinationData.datasetId)
+        formData.append('datasetId', destinationData.datasetId);
+      if (destinationData.targetTableName)
+        formData.append('targetTableName', destinationData.targetTableName);
+
+      // Add image - only if a new image is provided
       if (destinationData.image)
         formData.append('image', destinationData.image);
 
@@ -277,6 +300,98 @@ export const useDeleteDestination = () => {
     },
   });
 };
+
+// You'll also need to update the type definition for CreateDestinationData
+export interface CreateDestinationData {
+  name: string;
+  type?: string;
+  projectId?: string;
+  url?: string;
+  // serviceKeyJson?: any; // Can be string or object, will be stringified
+  datasetId?: string;
+  targetTableName?: string;
+  image?: File | null;
+}
+
+// export const useCreateDestination = () => {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: async (destinationData: CreateDestinationData) => {
+//       const formData = new FormData();
+
+//       // Add text fields
+//       formData.append('name', destinationData.name);
+//       if (destinationData.projectId)
+//         formData.append('projectId', destinationData.projectId);
+//       if (destinationData.url) formData.append('url', destinationData.url);
+//       if (destinationData.metadata)
+//         formData.append('metadata', JSON.stringify(destinationData.metadata));
+
+//       // Add image
+//       if (destinationData.image)
+//         formData.append('image', destinationData.image);
+
+//       const { data } = await api.post('/destinations', formData, {
+//         headers: { 'Content-Type': 'multipart/form-data' },
+//       });
+//       return data;
+//     },
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['destinations'] });
+//     },
+//   });
+// };
+
+// export const useUpdateDestination = () => {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: async ({
+//       id,
+//       ...destinationData
+//     }: CreateDestinationData & { id: number }) => {
+//       const formData = new FormData();
+
+//       // Add text fields
+//       formData.append('name', destinationData.name);
+//       if (destinationData.projectId)
+//         formData.append('projectId', destinationData.projectId);
+//       if (destinationData.url) formData.append('url', destinationData.url);
+//       if (destinationData.metadata)
+//         formData.append('metadata', JSON.stringify(destinationData.metadata));
+
+//       // Add image
+//       if (destinationData.image)
+//         formData.append('image', destinationData.image);
+
+//       const { data } = await api.patch(`/destinations/${id}`, formData, {
+//         headers: { 'Content-Type': 'multipart/form-data' },
+//       });
+//       return data;
+//     },
+//     onSuccess: (_, variables) => {
+//       queryClient.invalidateQueries({ queryKey: ['destinations'] });
+//       queryClient.invalidateQueries({
+//         queryKey: ['destinations', variables.id],
+//       });
+//     },
+//   });
+// };
+
+// export const useDeleteDestination = () => {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: async (id: number) => {
+//       const { data } = await api.delete(`/destinations/${id}`);
+//       return data;
+//     },
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['destinations'] });
+//     },
+//   });
+// };
 
 // ============ CONNECTIONS HOOKS ============
 

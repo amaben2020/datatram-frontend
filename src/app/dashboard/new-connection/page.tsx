@@ -13,6 +13,7 @@ import {
   CableCarIcon,
   ChevronLeft,
   CableIcon,
+  Loader2,
 } from 'lucide-react';
 import {
   useConnections,
@@ -24,6 +25,10 @@ import {
 } from '@/hooks/services';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useUser } from '@clerk/nextjs';
+import { useAuth } from '@clerk/clerk-react';
+import { toast } from 'sonner';
+import { useConnectBigQuery } from './hook/useConnectToBigQuery';
 
 const ConnectionsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,6 +48,21 @@ const ConnectionsPage = () => {
   const createMutation = useCreateConnection();
   const updateMutation = useUpdateConnection();
   const deleteMutation = useDeleteConnection();
+
+  const connectBigQueryMutation = useConnectBigQuery();
+  // Add BigQuery connection handler
+  const handleConnectToBigQuery = async (connection) => {
+    console.log('connection', connection);
+    try {
+      await connectBigQueryMutation.mutateAsync({
+        connectionId: connection.id,
+        destinationId: connection.destinationId,
+      });
+    } catch (err) {
+      // Error handling is done in the hook
+      console.error('BigQuery connection failed:', err);
+    }
+  };
 
   // Keep local connections synced when hook data changes (initial load)
   useEffect(() => {
@@ -143,7 +163,7 @@ const ConnectionsPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center min-w-[100%]">
+      <div className="min-h-screen  flex items-center justify-center min-w-[100%]">
         <div className="text-red-400 text-center">
           <h2 className="text-2xl font-bold mb-2">Error loading connections</h2>
           <p>Please try again later</p>
@@ -180,6 +200,34 @@ const ConnectionsPage = () => {
             New Connection
           </button>
         </div>
+
+        {connectBigQueryMutation.isPending && (
+          <>
+            {/* Backdrop */}
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
+
+            {/* Modal Container */}
+            <div className="fixed top-10 left-96 w-[60vw] h-[calc(100vh-5rem)] flex items-center justify-center p-4 z-50">
+              <div className="relative w-full h-full flex items-center justify-center">
+                {/* Content */}
+                <div className="text-center bg-white rounded-2xl shadow-2xl p-8 border border-purple-200">
+                  <ConnectionAnimation />
+                  <p className="mt-6 text-purple-600 text-lg font-medium">
+                    Establishing connection to BigQuery...
+                  </p>
+                  <p className="mt-2 text-gray-500 text-sm">
+                    Processing your data
+                  </p>
+
+                  {/* Progress bar */}
+                  <div className="mt-6 w-48 mx-auto h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-purple-600 to-purple-500 rounded-full animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Connections List */}
         <div className="space-y-6">
@@ -225,7 +273,7 @@ const ConnectionsPage = () => {
                   {/* Destination */}
                   <div className="flex items-center gap-3">
                     <div>
-                      {connection?.destinationImage == null ? (
+                      {/* {connection?.destinationImage == null ? (
                         <div className="bg-purple-600 p-3 rounded-lg px-5">
                           <Target size={20} className="text-purple" />
                         </div>
@@ -236,6 +284,17 @@ const ConnectionsPage = () => {
                           width={60}
                           alt=""
                           className="rounded-lg h-12 w-14"
+                        />
+                      )} */}
+
+                      {connection.destinationName
+                        ?.toLowerCase()
+                        ?.includes('Query'.toLowerCase()) && (
+                        <Image
+                          src="/bigquery.svg"
+                          height={50}
+                          width={50}
+                          alt="Big query icon"
                         />
                       )}
                     </div>
@@ -266,14 +325,35 @@ const ConnectionsPage = () => {
                     <Trash2 size={16} className="text-red-400" />
                   </button>
 
+                  {/* TODO: Add connect button here */}
+
+                  {/* <div className="min-h-screen w-[40vw] flex items-center justify-center p-4 bg-white fixed top-10 left-0">
+                    <div className="text-center">
+                      <ConnectionAnimation />
+                      <p className="mt-6 text-purple-400 text-lg font-medium">
+                        Establishing connection to BigQuery...
+                      </p>
+                    </div>
+                  </div> */}
+
+                  {/* Updated Connect Button */}
                   <button
-                    // onClick={() => handleDelete(connection.id)}
-                    // TODO: Send source data to destination here
-                    className="p-2 hover:bg-purple-500/20 rounded-lg transition-colors flex gap-2 items-center"
-                    aria-label="Create connection"
+                    onClick={() => handleConnectToBigQuery(connection)}
+                    disabled={connectBigQueryMutation.isPending}
+                    className="p-2 hover:bg-purple-500/20 rounded-lg transition-colors flex gap-2 items-center disabled:opacity-50"
+                    aria-label="Connect to BigQuery"
                   >
-                    <CableIcon size={16} className="text-purple-600" />
-                    Connect
+                    {connectBigQueryMutation.isPending ? (
+                      <Loader2
+                        size={16}
+                        className="text-purple-600 animate-spin"
+                      />
+                    ) : (
+                      <CableIcon size={16} className="text-purple-600" />
+                    )}
+                    {connectBigQueryMutation.isPending
+                      ? 'Connecting...'
+                      : 'Connect'}
                   </button>
                 </div>
               </div>
@@ -419,3 +499,163 @@ const ConnectionsPage = () => {
 };
 
 export default ConnectionsPage;
+const ConnectionAnimation = ({ status = 'connecting', size = 'lg' }) => {
+  const sizeClasses = {
+    sm: 'w-16 h-16',
+    md: 'w-24 h-24',
+    lg: 'w-32 h-32',
+    xl: 'w-48 h-48',
+  };
+
+  const statusColors = {
+    connecting: 'text-purple-600',
+    success: 'text-green-500',
+    error: 'text-red-500',
+    idle: 'text-gray-400',
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center p-8">
+      {/* Main Orbital Animation */}
+      <div className={`relative ${sizeClasses[size]} mb-6`}>
+        {/* Central Core */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div
+            className={`w-1/4 h-1/4 bg-current rounded-full animate-pulse ${statusColors[status]}`}
+          >
+            <div className="w-full h-full bg-current rounded-full animate-ping opacity-75"></div>
+          </div>
+        </div>
+
+        {/* Orbiting Nodes */}
+        <div className="absolute inset-0">
+          {/* Fast orbit */}
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div
+              className={`w-3 h-3 bg-current rounded-full animate-orbit-fast ${statusColors[status]}`}
+            ></div>
+          </div>
+
+          {/* Medium orbit */}
+          <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2">
+            <div
+              className={`w-4 h-4 bg-current rounded-full animate-orbit-medium ${statusColors[status]}`}
+            ></div>
+          </div>
+
+          {/* Slow orbit */}
+          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
+            <div
+              className={`w-5 h-5 bg-current rounded-full animate-orbit-slow ${statusColors[status]}`}
+            ></div>
+          </div>
+
+          {/* Very slow orbit */}
+          <div className="absolute top-1/2 left-0 transform -translate-x-1/2 -translate-y-1/2">
+            <div
+              className={`w-6 h-6 bg-current rounded-full animate-orbit-very-slow ${statusColors[status]}`}
+            ></div>
+          </div>
+        </div>
+
+        {/* Connection Lines */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-0 w-full h-full border-2 border-current border-dashed rounded-full opacity-20"></div>
+          <div className="absolute top-1/4 left-1/4 w-1/2 h-1/2 border-2 border-current border-dashed rounded-full opacity-15"></div>
+        </div>
+
+        {/* Pulsing Rings */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-full h-full border-4 border-current rounded-full animate-ping-slow opacity-0"></div>
+        </div>
+      </div>
+
+      {/* Status Text */}
+      <div className="text-center">
+        <div
+          className={`text-sm font-semibold uppercase tracking-widest mb-2 ${statusColors[status]}`}
+        >
+          {status}
+        </div>
+        <div className="flex space-x-1 justify-center">
+          <div
+            className="w-2 h-2 bg-current rounded-full animate-pulse"
+            style={{ animationDelay: '0s' }}
+          ></div>
+          <div
+            className="w-2 h-2 bg-current rounded-full animate-pulse"
+            style={{ animationDelay: '0.2s' }}
+          ></div>
+          <div
+            className="w-2 h-2 bg-current rounded-full animate-pulse"
+            style={{ animationDelay: '0.4s' }}
+          ></div>
+        </div>
+      </div>
+
+      {/* Data Flow Visualization */}
+      <div className="w-48 h-2 mt-6 bg-gradient-to-r from-transparent via-current to-transparent opacity-30 animate-pulse"></div>
+
+      {/* CSS Styles (add to your global CSS) */}
+      <style jsx>{`
+        @keyframes orbit-fast {
+          0% {
+            transform: rotate(0deg) translateX(40px) rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg) translateX(40px) rotate(-360deg);
+          }
+        }
+        @keyframes orbit-medium {
+          0% {
+            transform: rotate(0deg) translateX(32px) rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg) translateX(32px) rotate(-360deg);
+          }
+        }
+        @keyframes orbit-slow {
+          0% {
+            transform: rotate(0deg) translateX(24px) rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg) translateX(24px) rotate(-360deg);
+          }
+        }
+        @keyframes orbit-very-slow {
+          0% {
+            transform: rotate(0deg) translateX(16px) rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg) translateX(16px) rotate(-360deg);
+          }
+        }
+        @keyframes ping-slow {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(2);
+            opacity: 0;
+          }
+        }
+        .animate-orbit-fast {
+          animation: orbit-fast 1.5s linear infinite;
+        }
+        .animate-orbit-medium {
+          animation: orbit-medium 2s linear infinite;
+        }
+        .animate-orbit-slow {
+          animation: orbit-slow 2.5s linear infinite;
+        }
+        .animate-orbit-very-slow {
+          animation: orbit-very-slow 3s linear infinite;
+        }
+        .animate-ping-slow {
+          animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+      `}</style>
+    </div>
+  );
+};
