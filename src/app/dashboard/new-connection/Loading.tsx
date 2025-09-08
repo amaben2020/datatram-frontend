@@ -1,12 +1,12 @@
 export const ConnectionAnimation = ({ status = 'connecting', size = 'lg' }) => {
-  const sizeClasses = {
+  const sizeClasses: Record<string, string> = {
     sm: 'w-16 h-16',
     md: 'w-24 h-24',
     lg: 'w-32 h-32',
     xl: 'w-48 h-48',
   };
 
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     connecting: 'text-purple-600',
     success: 'text-green-500',
     error: 'text-red-500',
