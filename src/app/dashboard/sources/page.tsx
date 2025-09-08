@@ -150,7 +150,7 @@ const SourcesPage = () => {
           <ChevronLeft color="purple" />
           Back
         </button>
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-8 gap-10">
           <div>
             <h1 className="text-4xl font-bold text-black mb-2">Data Sources</h1>
             <p className="text-purple-600">
@@ -287,7 +287,7 @@ const SourcesPage = () => {
             </p>
             <button
               onClick={() => handleOpenModal()}
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-3 rounded-lg inline-flex items-center gap-2"
+              className="bg-purple-600 hover:bg-purple-500  text-white px-6 py-3 rounded-lg inline-flex items-center gap-2"
             >
               <Plus size={20} />
               Add Source
@@ -307,7 +307,7 @@ const SourcesPage = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-purple-600 text-sm font-medium mb-2">
-                  Name *
+                  * Name
                 </label>
                 <input
                   type="text"
@@ -321,7 +321,7 @@ const SourcesPage = () => {
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <label className="block text-purple-600 text-sm font-medium mb-2">
                   Host
                 </label>
@@ -334,11 +334,11 @@ const SourcesPage = () => {
                   className="w-full bg-white/10 border border-purple-100 rounded-lg px-3 py-2 text-purple-600 placeholder-purple-600 focus:border-purple-400 focus:outline-none"
                   placeholder="Enter host URL"
                 />
-              </div>
+              </div> */}
 
               <div>
                 <label className="block text-purple-600 text-sm font-medium mb-2">
-                  Type
+                  * Type
                 </label>
                 <select
                   value={formData.type}
@@ -358,7 +358,7 @@ const SourcesPage = () => {
 
               <div>
                 <label className="block text-purple-600 text-sm font-medium mb-2">
-                  File
+                  * File <span> (not more than 10mb)</span>
                 </label>
                 <input
                   type="file"
@@ -395,7 +395,7 @@ const SourcesPage = () => {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 bg-white hover:bg-purple-700  py-2 px-4 rounded-lg transition-colors text-red-600 border border-red-600"
+                  className="flex-1 bg-white hover:bg-red-600 hover:text-white  py-2 px-4 rounded-lg transition-colors text-red-600 border border-red-600"
                 >
                   Cancel
                 </button>
