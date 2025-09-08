@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Configure axios defaults
 export const api = axios.create({
-  baseURL: 'http://localhost:8000', // Adjust to your API URL
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000', // Adjust to your API URL
   headers: {
     'Content-Type': 'application/json',
   },
