@@ -57,6 +57,8 @@ const ConnectionsPage = () => {
   const deleteMutation = useDeleteConnection();
   const connectBigQueryMutation = useConnectBigQuery();
 
+  const { userId } = useAuth();
+
   // New hook for connection histories
   const {
     data: connectionHistories = [],
@@ -67,14 +69,10 @@ const ConnectionsPage = () => {
 
   // Filter histories by selected source
   const filteredHistories = useMemo(() => {
-    if (selectedSourceFilter === 'all') {
-      return connectionHistories;
-    }
     return connectionHistories.filter(
-      (history) => history.sourceId?.toString() === selectedSourceFilter
+      (history) => history.metadata.userId === userId
     );
-  }, [connectionHistories, selectedSourceFilter]);
-  console.log(filteredHistories);
+  }, [connectionHistories, userId]);
 
   // Get unique sources from histories for filter dropdown
   const availableSources = useMemo(() => {
@@ -412,7 +410,7 @@ const ConnectionsPage = () => {
       </div>
 
       {/* Connection History Sidebar */}
-      {/* <div className="w-80 bg-gray-50 border-l border-gray-200 p-6 overflow-y-auto max-h-[95vh] ">
+      <div className="w-80 bg-gray-50 border-l border-gray-200 p-6 overflow-y-auto max-h-[96vh]">
         <div className="sticky top-0 bg-gray-50 pb-4 mb-4 border-b border-gray-200">
           <div className="flex items-center gap-3 mb-4">
             <History size={20} className="text-purple-600" />
@@ -420,30 +418,10 @@ const ConnectionsPage = () => {
               Connection History
             </h2>
           </div>
+        </div>
 
-         
-          <div className="relative">
-            <Filter
-              size={16}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            />
-            <select
-              value={selectedSourceFilter}
-              onChange={(e) => setSelectedSourceFilter(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-            >
-              <option value="all">All Sources</option>
-              {availableSources.map((source) => (
-                <option key={source.id} value={source.id.toString()}>
-                  {source.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div> */}
-
-      {/* History List */}
-      {/* <div className="space-y-3">
+        {/* History List */}
+        <div className="space-y-3">
           {historiesLoading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 size={24} className="animate-spin text-purple-600" />
@@ -462,7 +440,7 @@ const ConnectionsPage = () => {
             filteredHistories.map((history) => (
               <div
                 key={history.id}
-                className={`p-4 rounded-lg border-2 ${getStatusColor(
+                className={`p-2 rounded-lg border-2 ${getStatusColor(
                   history.status
                 )}`}
               >
@@ -473,17 +451,24 @@ const ConnectionsPage = () => {
                       {history.status || 'Unknown'}
                     </span>
                   </div>
-                  <span className="text-xs text-gray-500">#{history.id}</span>
+                  <span className="text-xs text-gray-500">
+                    #{history.id}{' '}
+                    <span className="text-gray-700 font-bold">
+                      for connection {history.connectionId}
+                    </span>
+                  </span>
                 </div>
 
                 <div className="space-y-1 text-sm">
-                  <div>
-                    <span className="font-medium">Source:</span>{' '}
-                    {history.sourceName || `ID ${history.sourceId}`}
-                  </div>
-                  <div>
-                    <span className="font-medium">Destination:</span>{' '}
-                    {history.destinationName || `ID ${history.destinationId}`}
+                  <div className="flex gap-3 items-center">
+                    <div>
+                      <span className="font-medium">Source:</span>{' '}
+                      {history.sourceName || `ID ${history.sourceId}`}
+                    </div>
+                    <div>
+                      <span className="font-medium">Destination:</span>{' '}
+                      {history.destinationName || `ID ${history.destinationId}`}
+                    </div>
                   </div>
                   <div>
                     <span className="font-medium">Time:</span>{' '}
@@ -492,7 +477,7 @@ const ConnectionsPage = () => {
 
                   {history.metadata &&
                     Object.keys(history.metadata).length > 0 && (
-                      <div className="mt-2 p-2 bg-white/50 rounded text-xs">
+                      <div className="mt-1 p-1 bg-white/50 rounded text-xs">
                         <div className="font-medium mb-1">Details:</div>
                         {history.metadata.rowsProcessed && (
                           <div>Rows: {history.metadata.rowsProcessed}</div>
@@ -504,10 +489,11 @@ const ConnectionsPage = () => {
                           </div>
                         )}
                         {history.metadata.fileName && (
-                          <div className="truncate">
-                            File: {history.metadata.fileName}
+                          <div className=" ">
+                            File Uploaded: {history.metadata.fileName}
                           </div>
                         )}
+
                         {history.metadata.error && (
                           <div className="text-red-600">
                             Error: {history.metadata.error}
@@ -519,8 +505,8 @@ const ConnectionsPage = () => {
               </div>
             ))
           )}
-        </div> */}
-      {/* </div> */}
+        </div>
+      </div>
 
       {/* Modal (unchanged) */}
       {isModalOpen && (
