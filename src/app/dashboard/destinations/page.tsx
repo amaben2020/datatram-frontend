@@ -49,9 +49,10 @@ const DestinationsPage = () => {
   const updateMutation = useUpdateDestination();
   const deleteMutation = useDeleteDestination();
 
-  const IS_ADMIN = ['uzochukwubenamara@gmail.com'].includes(
-    user?.emailAddresses[0].emailAddress
-  );
+  const IS_ADMIN = [
+    'uzochukwubenamara@gmail.com',
+    'Gadgetboy.naija@gmail.com',
+  ].includes(user?.emailAddresses[0].emailAddress);
 
   // Filter destinations based on search term
   const filteredDestinations = useMemo(() => {
