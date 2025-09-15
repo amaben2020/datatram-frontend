@@ -51,7 +51,7 @@ const DestinationsPage = () => {
 
   const IS_ADMIN = [
     'uzochukwubenamara@gmail.com',
-    'Gadgetboy.naija@gmail.com',
+    'gadgetboy.naija@gmail.com',
   ].includes(user?.emailAddresses[0].emailAddress);
 
   // Filter destinations based on search term
@@ -564,8 +564,8 @@ const DestinationsPage = () => {
                   {createMutation.isPending || updateMutation.isPending
                     ? 'Saving...'
                     : editingDestination
-                    ? 'Update'
-                    : 'Create'}
+                      ? 'Update'
+                      : 'Create'}
                 </button>
               </div>
             </form>
