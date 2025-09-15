@@ -410,8 +410,8 @@ const SourcesPage = () => {
                   {createMutation.isPending || updateMutation.isPending
                     ? 'Saving...'
                     : editingSource
-                    ? 'Update'
-                    : 'Create'}
+                      ? 'Update'
+                      : 'Create'}
                 </button>
               </div>
             </div>

@@ -5,6 +5,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useConnections } from '@/hooks/services';
 import Link from 'next/link';
 
 import React, { useState } from 'react';
@@ -12,6 +13,8 @@ import React, { useState } from 'react';
 const ConnectionOnboardingAnimation = () => {
   const [hoveredSource, setHoveredSource] = useState(null);
   const [hoveredDestination, setHoveredDestination] = useState(null);
+  const { data: connections, isLoading } = useConnections();
+  console.log(connections);
   const sources = [
     {
       id: 'facebook',
@@ -690,10 +693,18 @@ const ConnectionOnboardingAnimation = () => {
         </div>
       </div>
       <div className="mx-auto text-center text-white bg-purple-600 py-3 px-4 mt-8 rounded-xl w-[35%]">
-        <Link href="/dashboard/new-connection" className="font-bold">
-          {' '}
-          Create your first connection{' '}
-        </Link>
+        {isLoading ? (
+          <p>Loading...</p>
+        ) : (
+          <Link href="/dashboard/new-connection" className="font-bold">
+            {' '}
+            {connections?.data?.length > 0
+              ? `View Connection${
+                  connections?.data?.length > 1 ? 's' : ''
+                } (${connections?.data?.length})`
+              : 'Create your first connection'}
+          </Link>
+        )}
       </div>
     </div>
   );

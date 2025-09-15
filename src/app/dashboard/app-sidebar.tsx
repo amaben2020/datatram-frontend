@@ -33,9 +33,22 @@ export function AppSidebar() {
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-900">Datatram</h2>
-            <p className="text-sm text-purple-600">
-              {user?.fullName + `'s` || user?.username || 'Default'} Workspace
-            </p>
+            {user?.fullName?.length && user.fullName.length > 0 ? (
+              <p className="text-sm text-purple-600">
+                {user?.fullName + `'s` ||
+                  user?.emailAddresses[0].emailAddress ||
+                  user?.username ||
+                  'Default'}{' '}
+                Workspace
+              </p>
+            ) : (
+              <p className="text-sm text-purple-600">
+                {user?.emailAddresses[0].emailAddress ||
+                  user?.username ||
+                  'Default'}{' '}
+                Workspace
+              </p>
+            )}
           </div>
         </div>
       </div>
