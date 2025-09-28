@@ -3,10 +3,9 @@ import { MacbookScroll } from '@/components/organisms/macbook-scroll';
 
 export default function Home() {
   return (
-    <div>
+    <div className="bg-white dark:bg-gray-900 transition-colors">
       <main>
         <GoogleGeminiEffectComponent />
-
         <MacbookScrollDemo />
       </main>
     </div>
@@ -25,11 +24,6 @@ function MacbookScrollDemo() {
             No kidding.
           </span>
         }
-        // badge={
-        //   <a href="https://peerlist.io/manuarora">
-        //     <Badge className="h-10 w-10 -rotate-12 transform" />
-        //   </a>
-        // }
         src={`/linear.webp`}
         showGradient={false}
       />

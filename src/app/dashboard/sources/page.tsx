@@ -109,12 +109,22 @@ const SourcesPage = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this source?')) {
+  const handleDelete = async (id: number, sourceName: string) => {
+    const confirmed = window.confirm(
+      `⚠️ WARNING: This will permanently delete "${sourceName}" and ALL associated connections.\n\n` +
+      `This action cannot be undone. Are you sure you want to continue?`
+    );
+    
+    if (confirmed) {
       try {
-        await deleteMutation.mutateAsync(id);
+        const result = await deleteMutation.mutateAsync(id);
+        // Show success message if available
+        if (result?.message) {
+          alert(`✅ ${result.message}`);
+        }
       } catch (error) {
         console.error('Error deleting source:', error);
+        alert('❌ Failed to delete source. Please try again.');
       }
     }
   };
@@ -234,7 +244,7 @@ const SourcesPage = () => {
                     <Edit size={16} className="text-purple-600" />
                   </button>
                   <button
-                    onClick={() => handleDelete(source.id)}
+                    onClick={() => handleDelete(source.id, source.name)}
                     className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
                   >
                     <Trash2 size={16} className="text-red-400" />

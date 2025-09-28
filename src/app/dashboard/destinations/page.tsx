@@ -43,16 +43,12 @@ const DestinationsPage = () => {
     image: null,
   });
   const [imagePreview, setImagePreview] = useState(null);
+  const [jsonError, setJsonError] = useState<string | null>(null);
   const { user } = useUser();
   const { data: destinations, isLoading, error } = useDestinations();
   const createMutation = useCreateDestination();
   const updateMutation = useUpdateDestination();
   const deleteMutation = useDeleteDestination();
-
-  const IS_ADMIN = [
-    'uzochukwubenamara@gmail.com',
-    'gadgetboy.naija@gmail.com',
-  ].includes(user?.emailAddresses[0].emailAddress);
 
   // Filter destinations based on search term
   const filteredDestinations = useMemo(() => {
@@ -73,12 +69,15 @@ const DestinationsPage = () => {
         type: destination.type || 'bigquery',
         projectId: destination.projectId || '',
         url: destination.url || '',
-        serviceKeyJson: destination.serviceKeyJson || '',
+        serviceKeyJson: typeof destination.serviceKeyJson === 'object' 
+          ? JSON.stringify(destination.serviceKeyJson, null, 2)
+          : destination.serviceKeyJson || '',
         datasetId: destination.datasetId || '',
         targetTableName: destination.targetTableName || '',
         image: null,
       });
       setImagePreview(destination.image || null);
+      setJsonError(null);
     } else {
       setEditingDestination(null);
       setFormData({
@@ -92,6 +91,7 @@ const DestinationsPage = () => {
         image: null,
       });
       setImagePreview(null);
+      setJsonError(null);
     }
     setIsModalOpen(true);
   };
@@ -110,16 +110,25 @@ const DestinationsPage = () => {
       image: null,
     });
     setImagePreview(null);
+    setJsonError(null);
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData((prev) => ({ ...prev, image: file }));
+  const handleServiceKeyJsonChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      serviceKeyJson: value,
+    }));
 
-      const reader = new FileReader();
-      reader.onload = (e) => setImagePreview(e.target?.result);
-      reader.readAsDataURL(file);
+    // Real-time JSON validation
+    if (value.trim() === '') {
+      setJsonError(null);
+    } else {
+      try {
+        JSON.parse(value);
+        setJsonError(null);
+      } catch (error) {
+        setJsonError('Invalid JSON format');
+      }
     }
   };
 
@@ -127,13 +136,30 @@ const DestinationsPage = () => {
     e.preventDefault();
 
     try {
+      // Validate Service Account JSON for BigQuery destinations
+      if (formData.type === 'bigquery') {
+        if (!formData.serviceKeyJson || formData.serviceKeyJson.trim() === '') {
+          alert('Service Account JSON is required for BigQuery destinations.');
+          return;
+        }
+        
+        // Validate JSON format
+        try {
+          JSON.parse(formData.serviceKeyJson);
+        } catch (jsonError) {
+          alert('Please enter valid JSON format for Service Account JSON.');
+          return;
+        }
+      }
+
       const submitData = {
         ...formData,
-        // Parse JSON if it's a string
-        serviceKeyJson:
-          typeof formData.serviceKeyJson === 'string'
-            ? JSON.parse(formData.serviceKeyJson || '{}')
-            : formData.serviceKeyJson,
+        // Parse JSON if it's a string, otherwise keep as is
+        serviceKeyJson: formData.serviceKeyJson 
+          ? (typeof formData.serviceKeyJson === 'string' 
+              ? JSON.parse(formData.serviceKeyJson) 
+              : formData.serviceKeyJson)
+          : null,
       };
 
       if (editingDestination) {
@@ -147,15 +173,26 @@ const DestinationsPage = () => {
       handleCloseModal();
     } catch (error) {
       console.error('Error saving destination:', error);
+      alert('Error saving destination. Please check your JSON format and try again.');
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this destination?')) {
+  const handleDelete = async (id: number, destinationName: string) => {
+    const confirmed = window.confirm(
+      `⚠️ WARNING: This will permanently delete "${destinationName}" and ALL associated connections.\n\n` +
+      `This action cannot be undone. Are you sure you want to continue?`
+    );
+    
+    if (confirmed) {
       try {
-        await deleteMutation.mutateAsync(id);
+        const result = await deleteMutation.mutateAsync(id);
+        // Show success message if available
+        if (result?.message) {
+          alert(`✅ ${result.message}`);
+        }
       } catch (error) {
         console.error('Error deleting destination:', error);
+        alert('❌ Failed to delete destination. Please try again.');
       }
     }
   };
@@ -196,61 +233,59 @@ const DestinationsPage = () => {
   }
 
   return (
-    <div className="min-h-screen p-8 min-w-[100%] bg-white">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen p-8 min-w-[100%] bg-white dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <button
           type="button"
-          className="flex gap-2 items-center mb-8 text-purple-500 hover:text-white cursor-pointer"
+          className="flex gap-2 items-center mb-8 text-purple-500 dark:text-white hover:text-white dark:hover:text-purple-400 cursor-pointer"
           onClick={() => router.back()}
         >
           <ChevronLeft size={20} />
           Back
         </button>
 
-        {IS_ADMIN && (
-          <div className="flex justify-between mb-8 items-center max-w-[80%]">
-            <div>
-              <h1 className="text-4xl font-bold text-purple-700 mb-2">
-                Destinations
-              </h1>
-              <p className="text-purple-500">
-                Manage your data output destinations and endpoints
-              </p>
-            </div>
-            <button
-              onClick={() => handleOpenModal()}
-              className="px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 bg-purple-600 text-white font-bold hover:bg-purple-700"
-            >
-              <Plus size={20} />
-              Add Destination
-            </button>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-purple-700 dark:text-white mb-2">
+              Destinations
+            </h1>
+            <p className="text-purple-500 dark:text-white">
+              Manage your data output destinations and endpoints
+            </p>
           </div>
-        )}
+          <button
+            onClick={() => handleOpenModal()}
+            className="px-4 sm:px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 bg-purple-600 text-white font-bold hover:bg-purple-700 w-full sm:w-auto justify-center"
+          >
+            <Plus size={20} />
+            Add Destination
+          </button>
+        </div>
 
         {/* Search Input */}
         <div className="mb-6">
           <div className="relative max-w-md">
             <Search
               size={20}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400"
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 dark:text-purple-300"
             />
             <input
               type="text"
               placeholder="Search destinations..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white/10 border border-purple-400/30 rounded-lg text-white placeholder-purple-400 focus:border-purple-400 focus:outline-none  "
+              className="w-full pl-10 pr-4 py-2 bg-white/10 dark:bg-gray-800 border border-purple-400/30 dark:border-purple-600 rounded-lg text-white dark:text-white placeholder-purple-400 dark:placeholder-purple-300 focus:border-purple-400 dark:focus:border-purple-500 focus:outline-none"
             />
           </div>
         </div>
 
         {/* Destinations Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredDestinations?.map((destination) => (
             <div
               key={destination.id}
-              className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-purple-400/20 hover:border-purple-400/50 transition-all duration-300 group hover:transform hover:scale-105"
+              className="bg-white/5 dark:bg-gray-800 backdrop-blur-lg rounded-xl p-6 border border-purple-400/20 dark:border-purple-600 hover:border-purple-400/50 dark:hover:border-purple-500 transition-all duration-300 group hover:transform hover:scale-105"
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
@@ -278,9 +313,7 @@ const DestinationsPage = () => {
                         'Please add logo'
                       )}
 
-                      <h3 className="text-white font-semibold text-lg">
-                        {destination.name}
-                      </h3>
+                  
                     </div>
                   )}
                   <div>
@@ -288,11 +321,7 @@ const DestinationsPage = () => {
                       <span className="px-2 py-1 bg-purple-600/20 text-purple-500 text-xs rounded-full capitalize">
                         {destination.type}
                       </span>
-                      {/* {destination.projectId && (
-                        <span className="text-purple-500 text-sm">
-                          • {destination.projectId}
-                        </span>
-                      )} */}
+                    
                     </div>
                   </div>
                 </div>
@@ -305,46 +334,50 @@ const DestinationsPage = () => {
                     <Edit size={16} className="text-purple-400" />
                   </button>
                   <button
-                    onClick={() => handleDelete(destination.id)}
+                    onClick={() => handleDelete(destination.id, destination.name)}
                     className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
                   >
                     <Trash2 size={16} className="text-red-400" />
                   </button>
                 </div>
               </div>
+              <h3 className="text-purple-600 dark:text-white font-semibold text-lg">
+                        {destination.name}
+                      </h3>
 
               <div className="space-y-3 text-sm">
                 {/* BigQuery Specific Details */}
                 {destination.type === 'bigquery' && (
                   <>
                     {destination.datasetId && (
-                      <div className="text-purple-500">
+                      <div className="text-purple-500 dark:text-white">
                         <span className="font-medium">Dataset:</span>{' '}
                         {destination.datasetId}
                       </div>
                     )}
+
+                      {destination.projectId && (
+                        <span className="text-purple-500 text-sm truncate text-ellipsis max-w-[10px] mb-2">
+                         Project Id: {destination.projectId.slice(0, 16)}...
+                        </span>
+                    )} 
+                    
                     {destination.targetTableName && (
-                      <div className="text-purple-500">
+                      <div className="text-purple-500 dark:text-white">
                         <span className="font-medium">Table:</span>{' '}
                         {destination.targetTableName}
                       </div>
                     )}
-                    {/* {destination.serviceKeyJson && (
-                      <div className="text-purple-500 text-xs">
-                        <span className="font-medium">Service Account:</span>{' '}
-                        Configured
-                      </div>
-                    )} */}
                   </>
                 )}
 
                 {destination.url && (
-                  <div className="text-purple-500 truncate">
+                  <div className="text-purple-500 dark:text-white truncate">
                     <span className="font-medium">URL:</span> {destination.url}
                   </div>
                 )}
 
-                <div className="text-purple-500 text-xs">
+                <div className="text-purple-500 dark:text-white text-xs">
                   Created:{' '}
                   {new Date(destination.createdAt).toLocaleDateString()}
                 </div>
@@ -354,7 +387,7 @@ const DestinationsPage = () => {
 
           {!filteredDestinations?.length && searchTerm && (
             <div className="col-span-full text-center py-8">
-              <p className="text-purple-500">
+              <p className="text-purple-500 dark:text-white">
                 No destinations found matching "{searchTerm}"
               </p>
             </div>
@@ -362,7 +395,7 @@ const DestinationsPage = () => {
 
           {!filteredDestinations?.length && !searchTerm && (
             <div className="col-span-full text-center py-8">
-              <p className="text-purple-500">No destinations added yet.</p>
+              <p className="text-purple-500 dark:text-white">No destinations added yet.</p>
             </div>
           )}
         </div>
@@ -370,12 +403,12 @@ const DestinationsPage = () => {
         {/* Empty State */}
         {destinations?.length === 0 && !searchTerm && (
           <div className="text-center py-16">
-            <Database size={64} className="text-purple-400 mx-auto mb-4" />
+            <Database size={64} className="text-purple-400 dark:text-purple-300 mx-auto mb-4" />
 
-            <h3 className="text-2xl font-semibold text-white mb-2">
+            <h3 className="text-2xl font-semibold text-white dark:text-white mb-2">
               No destinations yet
             </h3>
-            <p className="text-purple-500 mb-6">
+            <p className="text-purple-500 dark:text-white mb-6">
               Create your first destination to get started
             </p>
             <button
@@ -392,14 +425,24 @@ const DestinationsPage = () => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md border border-purple-400/20 ">
-            <h2 className="text-2xl font-bold text-white mb-6">
-              {editingDestination ? 'Edit Destination' : 'Create Destination'}
-            </h2>
+          <div className="bg-white rounded-2xl p-6 sm:p-8 w-full max-w-lg border border-gray-200 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {editingDestination ? 'Edit Destination' : 'Create Destination'}
+              </h2>
+              <button
+                onClick={handleCloseModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-purple-500 text-sm font-medium mb-2">
+                <label className="block text-gray-700 text-sm font-semibold mb-2">
                   Name *
                 </label>
                 <input
@@ -408,45 +451,47 @@ const DestinationsPage = () => {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
-                  className="w-full bg-white/5 border border-purple-400/30 rounded-lg px-3 py-2 text-white placeholder-purple-400 focus:border-purple-400 focus:outline-none"
+                  className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
                   placeholder="Enter destination name"
                   required
                 />
               </div>
 
-              <div>
-                <label className="block text-purple-500 text-sm font-medium mb-2">
-                  Type *
-                </label>
-                <select
-                  value={formData.type}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, type: e.target.value }))
-                  }
-                  className="w-full bg-white/5 border border-purple-400/30 rounded-lg px-3 py-2 text-white focus:border-purple-400 focus:outline-none"
-                >
-                  <option value="bigquery">BigQuery</option>
-                  <option value="snowflake">Snowflake</option>
-                  <option value="s3">Amazon S3</option>
-                </select>
-              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-700 text-sm font-semibold mb-2">
+                    Type *
+                  </label>
+                  <select
+                    value={formData.type}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, type: e.target.value }))
+                    }
+                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                  >
+                    <option value="bigquery">BigQuery</option>
+                    <option value="snowflake">Snowflake</option>
+                    <option value="s3">Amazon S3</option>
+                  </select>
+                </div>
 
-              <div>
-                <label className="block text-purple-500 text-sm font-medium mb-2">
-                  Project ID
-                </label>
-                <input
-                  type="text"
-                  value={formData.projectId}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      projectId: e.target.value,
-                    }))
-                  }
-                  className="w-full bg-white/5 border border-purple-400/30 rounded-lg px-3 py-2 text-white placeholder-purple-400 focus:border-purple-400 focus:outline-none"
-                  placeholder="Enter project ID"
-                />
+                <div>
+                  <label className="block text-gray-700 text-sm font-semibold mb-2">
+                    Project ID
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.projectId}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        projectId: e.target.value,
+                      }))
+                    }
+                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                    placeholder="Enter project ID"
+                  />
+                </div>
               </div>
 
               {/* <div>
@@ -467,105 +512,120 @@ const DestinationsPage = () => {
               {/* BigQuery Specific Fields */}
               {formData.type === 'bigquery' && (
                 <>
-                  {/* <div>
-                    <label className="block text-purple-500 text-sm font-medium mb-2">
+                  <div>
+                    <label className="block text-gray-700 text-sm font-semibold mb-2">
                       Service Account JSON *
                     </label>
                     <textarea
                       value={formData.serviceKeyJson}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          serviceKeyJson: e.target.value,
-                        }))
-                      }
-                      className="w-full bg-white/5 border border-purple-400/30 rounded-lg px-3 py-2 text-white placeholder-purple-400 focus:border-purple-400 focus:outline-none h-32 font-mono text-sm"
+                      onChange={(e) => handleServiceKeyJsonChange(e.target.value)}
+                      className={`w-full bg-gray-50 border rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 focus:ring-2 focus:outline-none transition-all h-32 font-mono text-sm resize-none ${
+                        jsonError 
+                          ? 'border-red-500 focus:border-red-500 focus:ring-red-200' 
+                          : 'border-gray-300 focus:border-purple-500 focus:ring-purple-200'
+                      }`}
                       placeholder='Paste service account JSON ({"type": "service_account", ...})'
                       required
                     />
-                  </div> */}
-
-                  <div>
-                    <label className="block text-purple-500 text-sm font-medium mb-2">
-                      Dataset ID *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.datasetId}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          datasetId: e.target.value,
-                        }))
-                      }
-                      className="w-full bg-white/5 border border-purple-400/30 rounded-lg px-3 py-2 text-white placeholder-purple-400 focus:border-purple-400 focus:outline-none"
-                      placeholder="Enter dataset ID"
-                      required
-                    />
+                    {jsonError && (
+                      <p className="text-xs text-red-500 mt-1">
+                        {jsonError}
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-500 mt-2">
+                      Paste your Google Cloud service account JSON credentials here
+                    </p>
                   </div>
 
-                  <div>
-                    <label className="block text-purple-500 text-sm font-medium mb-2">
-                      Target Table Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.targetTableName}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          targetTableName: e.target.value,
-                        }))
-                      }
-                      className="w-full bg-white/5 border border-purple-400/30 rounded-lg px-3 py-2 text-white placeholder-purple-400 focus:border-purple-400 focus:outline-none"
-                      placeholder="Enter target table name"
-                      required
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-gray-700 text-sm font-semibold mb-2">
+                        Dataset ID *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.datasetId}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            datasetId: e.target.value,
+                          }))
+                        }
+                        className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                        placeholder="Enter dataset ID"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-700 text-sm font-semibold mb-2">
+                        Target Table Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.targetTableName}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            targetTableName: e.target.value,
+                          }))
+                        }
+                        className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-all"
+                        placeholder="Enter target table name"
+                        required
+                      />
+                    </div>
                   </div>
                 </>
               )}
 
               <div>
-                <label className="block text-purple-500 text-sm font-medium mb-2">
+                <label className="block text-gray-700 text-sm font-semibold mb-2">
                   Image
                 </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full bg-white/5 border border-purple-400/30 rounded-lg px-3 py-2 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white file:hover:bg-purple-700"
-                />
-                {imagePreview && (
-                  <Image
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-16 h-16 object-cover rounded-lg mx-auto mt-3"
-                    height={64}
-                    width={64}
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white file:hover:bg-purple-700 file:cursor-pointer cursor-pointer"
                   />
+                </div>
+                {imagePreview && (
+                  <div className="mt-3 flex justify-center">
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                      height={80}
+                      width={80}
+                    />
+                  </div>
                 )}
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-4 pt-6">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 bg-white/10 border border-red-400/30 text-red-300 py-2 px-4 rounded-lg transition-colors hover:bg-red-400/10"
+                  className="flex-1 bg-gray-100 border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium transition-all hover:bg-gray-200 hover:border-gray-400"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={
-                    createMutation.isPending || updateMutation.isPending
+                    createMutation.isPending || 
+                    updateMutation.isPending ||
+                    (formData.type === 'bigquery' && jsonError !== null)
                   }
-                  className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-lg transition-all hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                 >
                   {createMutation.isPending || updateMutation.isPending
                     ? 'Saving...'
                     : editingDestination
-                      ? 'Update'
-                      : 'Create'}
+                      ? 'Update Destination'
+                      : 'Create Destination'}
                 </button>
               </div>
             </form>

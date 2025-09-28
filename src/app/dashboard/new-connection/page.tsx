@@ -45,6 +45,10 @@ const ConnectionsPage = () => {
     destinationId: '',
   });
   const [selectedSourceFilter, setSelectedSourceFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [allConnections, setAllConnections] = useState([]);
 
   // Existing hooks
   const { data: connectionsFromHook, isLoading, error } = useConnections();
@@ -104,7 +108,34 @@ const ConnectionsPage = () => {
   // Keep local connections synced when hook data changes (initial load)
   useEffect(() => {
     setConnections(connectionsFromHook || []);
+    setAllConnections(connectionsFromHook || []);
   }, [connectionsFromHook]);
+
+  // Infinite scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 1000 &&
+        !isLoadingMore &&
+        hasMore
+      ) {
+        loadMoreConnections();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isLoadingMore, hasMore]);
+
+  const loadMoreConnections = async () => {
+    setIsLoadingMore(true);
+    // Simulate loading more data (in a real app, you'd fetch from API with pagination)
+    setTimeout(() => {
+      setHasMore(false); // For demo purposes, we'll stop after first load
+      setIsLoadingMore(false);
+    }, 1000);
+  };
 
   const handleOpenModal = (connection) => {
     if (connection) {
@@ -155,13 +186,22 @@ const ConnectionsPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this connection?')) {
+  const handleDelete = async (id, sourceName, destinationName) => {
+    const confirmed = window.confirm(
+      `⚠️ WARNING: This will permanently delete the connection between "${sourceName}" and "${destinationName}".\n\n` +
+      `This action cannot be undone. Are you sure you want to continue?`
+    );
+    
+    if (confirmed) {
       try {
-        await deleteMutation.mutateAsync(id);
+        const result = await deleteMutation.mutateAsync(id);
+        // Show success message if available
+        if (result?.message) {
+          alert(`✅ ${result.message}`);
+        }
       } catch (err) {
         console.error('Error deleting connection:', err);
-        alert('Failed to delete connection. See console for details.');
+        toast.error('Delete the source and destination first!');
       }
     }
   };
@@ -254,7 +294,7 @@ const ConnectionsPage = () => {
             </div>
             <button
               onClick={() => handleOpenModal()}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 shadow-lg shadow-purple-600/20 font-bold"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 shadow-lg shadow-purple-600/20 font-bold onboarding-new-connection"
             >
               <Plus size={20} />
               New Connection
@@ -285,10 +325,14 @@ const ConnectionsPage = () => {
 
           {/* Connections List */}
           <div className="space-y-6">
-            {connectionsFromHook?.data?.map((connection) => (
+            {connectionsFromHook?.data?.map((connection, index) => (
               <div
                 key={connection.id}
-                className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:border-purple-400/50 transition-all duration-500 group shadow-md shadow-purple-500/10"
+                className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:border-purple-400/50 transition-all duration-500 group shadow-md shadow-purple-500/10 animate-fade-in-up connection-card"
+                style={{
+                  animationDelay: `${index * 100}ms`,
+                  animationFillMode: 'both'
+                }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-6 flex-1">
@@ -357,7 +401,11 @@ const ConnectionsPage = () => {
                       <Edit size={16} className="text-purple-500" />
                     </button>
                     <button
-                      onClick={() => handleDelete(connection.id)}
+                      onClick={() => handleDelete(
+                        connection.id, 
+                        connection.sourceName || getSourceName(connection.sourceId),
+                        connection.destinationName || getDestinationName(connection.destinationId)
+                      )}
                       className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
                       aria-label="Delete connection"
                     >
@@ -386,6 +434,27 @@ const ConnectionsPage = () => {
               </div>
             ))}
           </div>
+
+          {/* Infinite Scroll Loading Indicator */}
+          {isLoadingMore && (
+            <div className="flex justify-center items-center py-8">
+              <div className="flex items-center gap-3 text-purple-600">
+                <Loader2 size={24} className="animate-spin" />
+                <span className="text-lg font-medium">Loading more connections...</span>
+              </div>
+            </div>
+          )}
+
+          {/* End of List Indicator */}
+          {!hasMore && connectionsFromHook?.data?.length > 0 && (
+            <div className="text-center py-8 onboarding-complete">
+              <div className="inline-flex items-center gap-2 text-purple-500">
+                <div className="w-8 h-px bg-purple-300"></div>
+                <span className="text-sm font-medium">All connections loaded</span>
+                <div className="w-8 h-px bg-purple-300"></div>
+              </div>
+            </div>
+          )}
 
           {/* Empty State */}
           {connections?.length === 0 && (
